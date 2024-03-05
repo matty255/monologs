@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>{{ post.title }}</h1>
+  <div class="prose lg:prose-xl bg-slate-300">{{ post.content.html|safe }}</div>
+
+  <div class="post-actions">
+    <!-- Like Button -->
+    {% if user.is_authenticated %}
+      <form method="post" action="{% url 'toggle_like' pk=post.pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="content_type" value="post">
+        <input type="hidden" name="object_id" value="{{ post.id }}">
+        <button type="submit">
+          {% if liked %}Liked{% else %}Like{% endif %}
+          <span>{{ like_count }}
+            likes</span>
+        </button>
+      </form>
+
+    {% endif %}
+
+    <!-- Bookmark Button -->
+    {% if user.is_authenticated %}
+      <form method="post" action="{% url 'toggle_bookmark' pk=post.pk %}" class="bookmark-form">
+        {% csrf_token %}
+        <input type="hidden" name="content_type" value="post">
+        <input type="hidden" name="object_id" value="{{ post.id }}">
+        {% if bookmarked %}
+          <button type="submit">Bookmarked</button>
+        {% else %}
+          <button type="submit">Bookmark</button>
+        {% endif %}
+      </form>
+    {% endif %}
+  </div>
+
+  <h2>Comments</h2>
+  {% for comment in comments %}
+    <div>
+      <p>{{ comment.author }}:
+        {{ comment.content }}</p>
+    </div>
+  {% endfor %}
+
+  <h2>Add a comment</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ comment_form.as_p }}
+    <button type="submit">Add comment</button>
+  </form>
+{% endblock %}
