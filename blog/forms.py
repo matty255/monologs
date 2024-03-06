@@ -1,12 +1,16 @@
+import json
 from django import forms
-from .models import Post, Comment
-from ajax_select.fields import AutoCompleteSelectMultipleField
+from .models import Post, Comment, Tag
+from ajax_select.fields import (
+    AutoCompleteSelectField,
+    AutoCompleteSelectMultipleField,
+    autoselect_fields_check_can_add,
+)
 
 
-# Now let's make sure our PostForm uses the AutoCompleteSelectMultipleField correctly
-class PostForm(forms.ModelForm):
+class PostAdminForm(forms.ModelForm):
     tags = AutoCompleteSelectMultipleField(
-        "tags",  # 'tags' is the name of the lookup defined in lookups.py
+        "tags",
         required=False,
         help_text="태그를 선택하거나 입력하세요.",
         label="Tags",
@@ -17,20 +21,41 @@ class PostForm(forms.ModelForm):
         fields = ["title", "content", "author", "tags"]
 
     def __init__(self, *args, **kwargs):
-        super(PostForm, self).__init__(*args, **kwargs)
+        super(PostAdminForm, self).__init__(*args, **kwargs)
         # If the instance already exists (e.g., during edit), initialize the tags field.
         if self.instance.pk:
             self.fields["tags"].initial = self.instance.tags.all()
 
     def save(self, commit=True):
-        instance = super(PostForm, self).save(commit=False)
+        instance = super(PostAdminForm, self).save(commit=False)
 
         if commit:
             instance.save()
-            # For ManyToMany fields, you must save the instance then set the relation.
             self.save_m2m()
 
         return instance
+
+
+from django import forms
+from .models import Post
+
+
+class PostForm(forms.ModelForm):
+    tags = forms.CharField(widget=forms.TextInput(attrs={"class": "tagify-field"}))
+
+    class Meta:
+        model = Post
+        fields = ["title", "content", "tags"]  # Removed 'author'
+
+    def clean_tags(self):
+        tags_str = self.cleaned_data["tags"]
+        tags_list = json.loads(tags_str)
+        # Convert tag names to tag IDs
+        tag_ids = []
+        for name in tags_list:
+            tag, created = Tag.objects.get_or_create(name=name)
+            tag_ids.append(tag.id)
+        return tag_ids
 
 
 class CommentForm(forms.ModelForm):

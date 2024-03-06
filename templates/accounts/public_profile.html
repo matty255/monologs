@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  <h1>{{ profile_user.username }}'s Profile</h1>
+
+  <!-- Profile Picture and Status -->
+  {% if profile_user.profile_picture %}
+    <img src="{{ profile_user.profile_picture.url }}" alt="Profile Picture">
+  {% else %}
+    <img src="{% static 'default_images/default_profile_picture.png' %}" alt="Default Profile Picture">
+  {% endif %}
+
+  {% if profile_user.profile_status %}
+    <p>Status:
+      {{ profile_user.profile_status }}</p>
+  {% else %}
+    <p>No status message.</p>
+  {% endif %}
+
+  <!-- Follow/Unfollow Button -->
+  {% if request.user != profile_user %}
+    <form method="post" action="{% url 'follow_toggle' pk=profile_user.pk %}">
+      {% csrf_token %}
+      {% if is_following %}
+        <button type="submit">Unfollow</button>
+      {% else %}
+        <button type="submit">Follow</button>
+      {% endif %}
+    </form>
+  {% endif %}
+
+  <!-- Followers and Following Lists -->
+  <h2>Following</h2>
+  {% for user in following %}
+    <p>{{ user.username }}</p>
+  {% endfor %}
+
+  <h2>Followers</h2>
+  {% for user in followers %}
+    <p>{{ user.username }}</p>
+  {% endfor %}
+
+  <!-- Liked and Bookmarked Posts -->
+  <!-- ... -->
+{% endblock %}

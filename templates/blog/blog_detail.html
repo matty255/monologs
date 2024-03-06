@@ -2,7 +2,14 @@
 
 {% block content %}
   <h1>{{ post.title }}</h1>
+
   <div class="prose lg:prose-xl bg-slate-300">{{ post.content.html|safe }}</div>
+  <div>
+    <p>Posted by {{ post.author }} on {{ post.updated_at }}</p>
+    {% for tag in tags %}
+    <span>{{ tag.name }}</span>
+{% endfor %}
+  </div>
 
   <div class="post-actions">
     <!-- Like Button -->
