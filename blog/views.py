@@ -1,4 +1,4 @@
-from django.views.generic import View, ListView, DetailView, CreateView
+from django.views.generic import View, ListView, DetailView, CreateView, UpdateView
 from django.urls import reverse_lazy
 from .models import Post, Comment, Tag, Like, Bookmark
 from .forms import PostForm, CommentForm, ReplyForm
@@ -8,9 +8,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.contrib import messages
 from .models import Like
-from ajax_select.fields import autoselect_fields_check_can_add
+from django.core.cache import cache
 from django.db import transaction
 import json
+from django.forms.models import model_to_dict
 
 
 class ToggleLikeView(LoginRequiredMixin, View):
@@ -66,20 +67,34 @@ class PostListView(ListView):
     model = Post
     template_name = "blog/blog_list.html"
     context_object_name = "posts"
-    paginate_by = 10  # 한 페이지에 보여줄 객체 수
+    paginate_by = 10
 
     def get_queryset(self):
         query = self.request.GET.get("q", "")
+        search_fields = self.request.GET.getlist("fields", [])
         tag = self.request.GET.get("tag", "")
         post_content_type = ContentType.objects.get_for_model(Post)
+
+        queries = []
         if query:
-            object_list = self.model.objects.filter(
-                Q(title__icontains=query) | Q(content__icontains=query)
-            )
-        elif tag:
-            object_list = self.model.objects.filter(tags__name__icontains=tag)
+            if "title" in search_fields:
+                queries.append(Q(title__icontains=query))
+            if "content" in search_fields:
+                queries.append(Q(content__icontains=query))
+            if "summary" in search_fields:  # 'summary' 필드가 모델에 존재한다고 가정
+                queries.append(Q(summary__icontains=query))
+
+        if tag:
+            queries.append(Q(tags__name__icontains=tag))
+
+        if queries:
+            combined_query = queries.pop()
+            for item in queries:
+                combined_query |= item
+            object_list = self.model.objects.filter(combined_query)
         else:
             object_list = self.model.objects.all()
+
         object_list = object_list.annotate(
             like_count=Count(
                 "id",
@@ -92,6 +107,13 @@ class PostListView(ListView):
         )
         return object_list
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["query"] = self.request.GET.get("q", "")
+        context["search_fields"] = self.request.GET.getlist("fields", [])
+        context["tag"] = self.request.GET.get("tag", "")
+        return context
+
 
 class PostDetailView(DetailView):
     model = Post
@@ -99,36 +121,39 @@ class PostDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["comment_form"] = CommentForm()
-        context["reply_form"] = ReplyForm()
-        context["comments"] = self.object.comments.filter(parent__isnull=True)
-        context["post"] = self.object
 
-        # Add tags to the context
-        context["tags"] = self.object.tags.all()
+        post = self.get_object()
 
-        content_type = ContentType.objects.get_for_model(Post)
         if self.request.user.is_authenticated:
+            content_type = ContentType.objects.get_for_model(Post)
+            user = self.request.user
+
             liked = Like.objects.filter(
-                content_type=content_type,
-                object_id=self.object.id,
-                user=self.request.user,
+                content_type=content_type, object_id=post.id, user=user
             ).exists()
             context["liked"] = liked
 
-            # Check if the user has bookmarked the post
             bookmarked = Bookmark.objects.filter(
-                content_type=content_type,
-                object_id=self.object.id,
-                user=self.request.user,
+                content_type=content_type, object_id=post.id, user=user
             ).exists()
             context["bookmarked"] = bookmarked
 
-            # Count of likes for the post, visible to everyone
-            context["like_count"] = Like.objects.filter(
-                content_type=content_type,
-                object_id=self.object.id,
+            like_count = Like.objects.filter(
+                content_type=content_type, object_id=post.id
             ).count()
+            context["like_count"] = like_count
+
+        comments = list(
+            post.comments.filter(parent__isnull=True).values(
+                "id", "content", "created_at"
+            )
+        )
+        context["tags"] = self.object.tags.all()
+
+        context["comments"] = comments
+
+        context["comment_form"] = CommentForm()
+        context["reply_form"] = ReplyForm()
 
         return context
 
@@ -141,42 +166,37 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        tags = Tag.objects.all().values_list("name", flat=True)
-        context["tags_list"] = list(tags)
+        # Fetch tags directly from the database
+        context["tags_list"] = list(Tag.objects.all().values_list("name", flat=True))
         return context
 
     def form_valid(self, form):
-        # Start a new transaction
+        form.instance.author = self.request.user
         with transaction.atomic():
-            # This calls the save method of the form which will create the new Post object
-            form.instance.author = self.request.user
             self.object = form.save(commit=False)
-
-            # Add any additional processing here, such as adding the author if needed
-            self.object.author = (
-                self.request.user
-            )  # Example: setting the author of the post
             self.object.save()
-
-            # Now handle the tags
-            tags_data = self.request.POST.get(
-                "tags"
-            )  # The name 'tags' must match the name in your form input
-            tags_list = json.loads(tags_data)
-
-            # Clear any old tags
-            self.object.tags.clear()
-
-            # Add new tags
-            for tag_name in tags_list:
-                tag, created = Tag.objects.get_or_create(name=tag_name)
-                self.object.tags.add(tag)
-
-            # Finally save the m2m relationship
             form.save_m2m()
+        return super().form_valid(form)
 
-            # The super method returns an HttpResponseRedirect to the success_url
-            return super().form_valid(form)
+
+class PostUpdateView(LoginRequiredMixin, UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = "blog/post_update.html"
+    success_url = reverse_lazy("blog_list")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Fetch all tags for autocomplete functionality
+        context["tags_list"] = list(Tag.objects.all().values_list("name", flat=True))
+        # Get a list of names of tags associated with this specific post
+        if self.object:
+            context["post_tags"] = list(self.object.tags.values_list("name", flat=True))
+        return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        return response
 
 
 class CommentCreateView(CreateView):

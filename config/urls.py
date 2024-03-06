@@ -7,6 +7,7 @@ from config import settings
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("", include("main.urls")),
     path("blog/", include("blog.urls")),
     path("accounts/", include("accounts.urls")),
     path("__reload__/", include("django_browser_reload.urls")),

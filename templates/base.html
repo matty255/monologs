@@ -19,7 +19,8 @@
   <body>
     <header>
       <nav>
-        <a href="{% url 'blog_list' %}">Home</a>
+        <a href="{% url 'index' %}">Home</a>
+        <a href="{% url 'blog_list' %}">Blog</a>
         <a href="{% url 'post_create' %}">Create</a>
      
         {% if request.user.is_authenticated %}
@@ -27,6 +28,16 @@
     {% else %}
     <a href="{% url 'login' %}">login</a>
 {% endif %}
+      <form method="get">
+        <input type="text" name="q" placeholder="검색..." value="{{ query }}">
+        <select name="fields" multiple>
+            <option value="title" {% if "title" in search_fields %}selected{% endif %}>제목</option>
+            <option value="content" {% if "content" in search_fields %}selected{% endif %}>내용</option>
+            <option value="summary" {% if "summary" in search_fields %}selected{% endif %}>요약</option>
+            <option value="tags" {% if "tags" in search_fields %}selected{% endif %}>태그</option>
+        </select>
+        <button type="submit">검색</button>
+      </form>
         {% comment %} <img src="{{ profile_pic.url }}" alt="Profile picture">
         <img src="{{ profile_image.url }}" alt="Profile image"> {% endcomment %}
       </nav>

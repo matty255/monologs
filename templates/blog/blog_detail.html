@@ -6,6 +6,8 @@
   <div class="prose lg:prose-xl bg-slate-300">{{ post.content.html|safe }}</div>
   <div>
     <p>Posted by {{ post.author }} on {{ post.updated_at }}</p>
+    <a href="{% url 'post_update' pk=post.pk %}">Edit</a>
+
     {% for tag in tags %}
     <span>{{ tag.name }}</span>
 {% endfor %}
@@ -42,7 +44,7 @@
     {% endif %}
   </div>
 
-  <h2>Comments</h2>
+ <h2>Comments</h2>
   {% for comment in comments %}
     <div>
       <p>{{ comment.author }}:
@@ -55,5 +57,5 @@
     {% csrf_token %}
     {{ comment_form.as_p }}
     <button type="submit">Add comment</button>
-  </form>
+  </form> 
 {% endblock %}
