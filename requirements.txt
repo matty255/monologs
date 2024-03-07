@@ -8,6 +8,7 @@ click==8.1.7
 colorama==0.4.6
 cookiecutter==2.6.0
 Django==5.0.2
+django-ajax-selects==3.0.2
 django-browser-reload==1.12.1
 django-quill-editor==0.1.40
 django-tailwind==3.8.0
