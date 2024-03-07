@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post, Tag, Like, Bookmark
+from .models import Post, Tag, Like, Bookmark, Comment
 from ajax_select.admin import AjaxSelectAdmin
 from ajax_select.fields import autoselect_fields_check_can_add
 from .forms import PostForm, PostAdminForm
@@ -30,3 +30,8 @@ class PostAdmin(AjaxSelectAdmin):  # Inherit from AjaxSelectAdmin
         autoselect_fields_check_can_add(form, self.model, request.user)
 
         return form
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    search_fields = ["name"]

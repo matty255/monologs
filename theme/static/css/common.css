@@ -1,0 +1,82 @@
+.a11y {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+}
+
+@font-face {
+  font-family: "NanumSquare";
+  src: url("../assets/fonts/NanumSquareNeo-Variable.ttf") format("truetype");
+  font-weight: 100 1000;
+  font-stretch: 50% 200%;
+}
+
+@font-face {
+  font-family: "HappinessSans";
+  src: url("../assets/fonts/HappinessSansVF.ttf") format("truetype");
+  font-weight: 100 1000;
+  font-stretch: 50% 200%;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+/* 모든 웹킷(WebKit) 기반 브라우저에서 스크롤바 숨기기 */
+::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera 등 */
+}
+
+/* Firefox에서 스크롤바 숨기기 */
+* {
+  scrollbar-width: none; /* Firefox */
+}
+
+/* IE 및 Edge에서 스크롤바 숨기기 */
+* {
+  -ms-overflow-style: none; /* Internet Explorer 10+ 및 Edge */
+}
+
+img {
+  vertical-align: top;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%; /* 이미지가 컨테이너를 벗어나지 않도록 설정 */
+  display: block;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit; /* 모든 요소에 대해 box-sizing을 border-box로 설정 */
+}
+
+ul[class],
+ol[class] {
+  list-style: none; /* 클래스가 있는 목록의 기본 스타일 제거 */
+}
+
+html {
+  background-color: rosybrown;
+}
+
+body {
+  /* max-width: 1280px; */
+  background-color: #333;
+  height: 100vh;
+  margin: auto;
+  position: fixed;
+  font-family: "NanumSquare", sans-serif;
+}

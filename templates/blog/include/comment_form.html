@@ -1,0 +1,7 @@
+<!-- blog/include/comment_form.html -->
+<form method="post" action="{% url 'comment_create' post.pk %}">
+    {% csrf_token %}
+    <input type="hidden" name="parent_id" value="{{ parent_id|default_if_none:'' }}" />
+    {{ form.as_p }}
+    <button type="submit">Add comment</button>
+</form>

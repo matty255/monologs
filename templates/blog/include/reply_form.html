@@ -1,0 +1,7 @@
+<!-- 이 폼은 대댓글을 위한 것으로, 해당 댓글의 ID를 부모 ID로 사용합니다. -->
+<form method="post" action="{% url 'comment_create' post.pk %}">
+    {% csrf_token %}
+    <input type="hidden" name="parent_id" value="{{ parent_id }}" />
+    {{ form.as_p }}
+    <button type="submit">Reply button</button>
+</form>

@@ -2,12 +2,11 @@ from django.urls import path
 from .views import (
     PostListView,
     PostDetailView,
-    CommentCreateView,
-    ReplyCreateView,
     ToggleLikeView,
     ToggleBookmarkView,
     PostCreateView,
     PostUpdateView,
+    CommentCreateView,
 )
 
 
@@ -22,10 +21,9 @@ urlpatterns = [
         ToggleBookmarkView.as_view(),
         name="toggle_bookmark",
     ),
-    path("<int:pk>/comment/", CommentCreateView.as_view(), name="comment_create"),
     path(
-        "<int:post_pk>/comment/<int:comment_pk>/reply/",
-        ReplyCreateView.as_view(),
-        name="reply_create",
+        "post/<int:post_pk>/comment/",
+        CommentCreateView.as_view(),
+        name="comment_create",
     ),
 ]

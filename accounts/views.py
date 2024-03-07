@@ -10,9 +10,29 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from .models import CustomUser
 from django.contrib.auth.views import LoginView
-from .forms import CustomLoginForm
+from .forms import CustomLoginForm, CustomUserCreationForm
 from django.urls import reverse_lazy
 from django.contrib.auth.views import LogoutView
+from django.contrib.auth import authenticate, login
+from django.views.generic import CreateView
+
+
+class RegisterView(CreateView):
+    form_class = CustomUserCreationForm
+    success_url = reverse_lazy("private_profile")  # Adjust to your profile URL
+    template_name = "accounts/register.html"
+
+    def form_valid(self, form):
+        # Form is valid
+        user = form.save()
+        login(self.request, user)
+        messages.success(self.request, "Registration successful.")
+        return redirect(self.success_url)
+
+    def form_invalid(self, form):
+        # Form is invalid
+        messages.error(self.request, "Registration failed. Please check the form.")
+        return super().form_invalid(form)
 
 
 class CustomLoginView(LoginView):

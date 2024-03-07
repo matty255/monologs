@@ -7,11 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta charset="UTF-8">
-    <meta property="og:title" content="Monologs">
-    <meta property="og:description" content="Description">
-    <meta property="og:image" content="image">
-    <meta property="og:url" content="URL">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ meta.title|default:"Monologs" }}">
+    <meta property="og:description" content="{{ meta.description|default:"Description" }}">
+    <meta property="og:image" content="{{ meta.image|default:"URL_to_default_image" }}">
 
     {% tailwind_css %}
   </head>
@@ -27,6 +27,7 @@
         <a href="{% url 'logout' %}?next={{ request.path }}" class="btn btn-primary">Logout</a>
     {% else %}
     <a href="{% url 'login' %}">login</a>
+    <a href="{% url 'register' %}">signup</a>
 {% endif %}
       <form method="get">
         <input type="text" name="q" placeholder="검색..." value="{{ query }}">
@@ -57,6 +58,8 @@
     <main>
       {% block content %}{% endblock %}
     </main>
+    <script src="{% static 'js/utils.js' %}"></script>
+
   </body>
 
 </html>

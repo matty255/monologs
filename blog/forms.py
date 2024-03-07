@@ -36,16 +36,12 @@ class PostAdminForm(forms.ModelForm):
         return instance
 
 
-from django import forms
-from .models import Post
-
-
 class PostForm(forms.ModelForm):
     tags = forms.CharField(widget=forms.TextInput(attrs={"class": "tagify-field"}))
 
     class Meta:
         model = Post
-        fields = ["title", "content", "tags"]  # Removed 'author'
+        fields = ["title", "summery", "content", "tags"]  # Removed 'author'
 
     def clean_tags(self):
         tags_str = self.cleaned_data["tags"]
