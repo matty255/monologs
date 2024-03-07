@@ -6,9 +6,81 @@
 
 ## 기능
 - **CK 에디터를 통한 블로그 포스트 작성**: 사용자는 풍부한 텍스트 편집 기능을 제공하는 CK 에디터를 사용하여 블로그 포스트를 작성할 수 있습니다.
-- **JWT를 이용한 사용자 인증**: JSON Web Token(JWT)를 사용하여 안전한 로그인 및 회원가입 프로세스를 구현합니다.
+- **회원가입 및 로그인**: 회원으로 가입하면 게시글과 댓글을 쓸 수 있습니다.
 - **게시판 기능**: 사용자는 자신의 블로그 포스트를 게시하고 다른 사용자의 포스트를 볼 수 있습니다.
 
+
+## ERD
+![Database ERD](./static/images/readme/erd.png)
+
+- tags 중계 테이블
+- GenericForeignKey를 사용해서 post와 comment에 like와 bookmark 추가
+
+```
+Table CustomUser {
+  id int [pk, increment] // auto-increment
+  username varchar
+  email varchar
+  profile_status varchar
+  profile_message text
+}
+
+Table Tag {
+  id int [pk, increment]
+  name varchar [unique]
+}
+
+Table Post {
+  id int [pk, increment]
+  title varchar(100)
+  summary  varchar(200)
+  author_id int [ref: > CustomUser.id]
+  content text
+  thumbnail varchar
+  created_at datetime
+  updated_at datetime
+}
+
+Table Comment {
+  id int [pk, increment]
+  content text
+  author_id int [ref: > CustomUser.id]
+  created_at datetime
+  updated_at datetime
+  post_id int [ref: > Post.id]
+  parent_id int [null, ref: > Comment.id] 
+}
+
+Table Like {
+  id int [pk, increment]
+  user_id int [ref: > CustomUser.id]
+  content_type_id int
+  object_id int
+}
+
+Table Bookmark {
+  id int [pk, increment]
+  user_id int [ref: > CustomUser.id]
+  content_type_id int
+  object_id int
+}
+
+Table Follow {
+  id int [pk, increment]
+  follower_id int [ref: > CustomUser.id]
+  following_id int [ref: > CustomUser.id]
+}
+
+// M:N 관계인 Post와 Tag를 위한 중계 테이블
+Table Post_Tags {
+  post_id int [ref: > Post.id]
+  tag_id int [ref: > Tag.id]
+}
+
+// GenericForeignKey를 직접적으로 표현하는 것은 dbdiagram.io에서 지원하지 않습니다.
+// Like 및 Bookmark 모델에서 사용되는 content_type_id와 object_id는 
+// 실제 구현시 ContentType 프레임워크와 연결되어야 하며, 여기서는 간략화하여 표현하였습니다.
+```
 ## 설치 방법
 프로젝트를 설치하고 실행하기 위한 단계별 지침은 다음과 같습니다.
 
@@ -65,11 +137,12 @@
     ```
 
 ## 사용된 기술
-
-Django 
-   "django_quill",
-    "django_browser_reload",
-    "ajax_select",
+- Django 
+- Django-quill-editor
+- Django-tailwind
+- Django_browser_reload
+- Django-ajax_select
+- Tom Select
 
 ## 개발 환경 설정
 개발을 시작하기 전에, 다음 도구들이 시스템에 설치되어 있어야 합니다:
