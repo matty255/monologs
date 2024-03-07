@@ -142,6 +142,8 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
+LOGIN_URL = "login"
+
 NPM_BIN_PATH = which("npm")
 
 LANGUAGE_CODE = "ko-kr"

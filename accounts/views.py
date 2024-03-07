@@ -10,11 +10,11 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from .models import CustomUser
 from django.contrib.auth.views import LoginView
-from .forms import CustomLoginForm, CustomUserCreationForm
+from .forms import CustomLoginForm, CustomUserCreationForm, UserProfileForm
 from django.urls import reverse_lazy
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth import authenticate, login
-from django.views.generic import CreateView
+from django.views.generic import CreateView, UpdateView
 
 
 class RegisterView(CreateView):
@@ -98,11 +98,20 @@ class PublicProfileView(DetailView):
         return context
 
 
-class PrivateProfileView(LoginRequiredMixin, TemplateView):
+class PrivateProfileView(LoginRequiredMixin, UpdateView):
+    model = CustomUser
+    form_class = UserProfileForm
     template_name = "accounts/private_profile.html"
+    success_url = reverse_lazy(
+        "private_profile"
+    )  # URL 이름은 프로젝트 설정에 따라 달라질 수 있음
+
+    def get_object(self):
+        # 현재 로그인한 사용자의 인스턴스를 반환합니다.
+        return self.request.user
 
     def get_context_data(self, **kwargs):
-        context = super(PrivateProfileView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         user = self.request.user
 
         # Fetch the ContentType for the Post model
@@ -120,7 +129,6 @@ class PrivateProfileView(LoginRequiredMixin, TemplateView):
         ).values_list("object_id", flat=True)
         bookmarked_posts = Post.objects.filter(id__in=bookmarked_content_ids)
 
-        context["private_profile"] = user
         context["liked_posts"] = liked_posts
         context["bookmarked_posts"] = bookmarked_posts
 

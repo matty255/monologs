@@ -2,7 +2,11 @@
 
 {% block content %}
   <h1>{{ private_profile.username }}'s Profile</h1>
-
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">프로필 사진 업데이트</button>
+</form>
   <h2>Liked Posts</h2>
   {% for post in liked_posts %}
     <p>

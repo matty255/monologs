@@ -71,26 +71,23 @@ class ToggleBookmarkView(View):
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
 
 
-class PostListView(ListView):
+class SearchView(ListView):
     model = Post
-    template_name = "blog/blog_list.html"
+    template_name = "blog/search_results.html"
     context_object_name = "posts"
-    paginate_by = 10
 
     def get_queryset(self):
         query = self.request.GET.get("q", "")
-        search_fields = self.request.GET.getlist("fields", [])
         tag = self.request.GET.get("tag", "")
         post_content_type = ContentType.objects.get_for_model(Post)
 
         queries = []
         if query:
-            if "title" in search_fields:
-                queries.append(Q(title__icontains=query))
-            if "content" in search_fields:
-                queries.append(Q(content__icontains=query))
-            if "summary" in search_fields:  # 'summary' 필드가 모델에 존재한다고 가정
-                queries.append(Q(summary__icontains=query))
+            queries.append(
+                Q(title__icontains=query)
+                | Q(content__icontains=query)
+                | Q(summary__icontains=query)
+            )
 
         if tag:
             queries.append(Q(tags__name__icontains=tag))
@@ -115,6 +112,13 @@ class PostListView(ListView):
         )
         return object_list
 
+
+class PostListView(ListView):
+    model = Post
+    template_name = "blog/blog_list.html"
+    context_object_name = "posts"
+    paginate_by = 10
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["query"] = self.request.GET.get("q", "")
@@ -133,7 +137,7 @@ class PostDetailView(DetailView):
 
         context["meta"] = {
             "title": "nonologs" + "|" + post.title,
-            "description": post.summery if post.summery else "welcome to monologs",
+            "description": post.summary if post.summary else "welcome to monologs",
             "image": (
                 self.request.build_absolute_uri(post.thumbnail.url)
                 if post.thumbnail
@@ -221,7 +225,7 @@ class PostDeleteView(DeleteView):
     success_url = reverse_lazy("blog_list")
 
 
-class CommentCreateView(CreateView):
+class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
     form_class = CommentForm
     template_name = (

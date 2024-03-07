@@ -36,3 +36,9 @@ class CustomUserCreationForm(UserCreationForm):
             raise ValidationError(
                 _("비밀번호가 너무 짧습니다. 최소 8 문자를 포함해야 합니다.")
             )
+
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ["profile_picture"]

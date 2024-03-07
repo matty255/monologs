@@ -5,12 +5,15 @@
 
   <div class="prose lg:prose-xl bg-slate-300">{{ post.content.html|safe }}</div>
   <div>
-    <p>Posted by {{ post.author }} on {{ post.updated_at }}</p>
+    <p>Posted by
+      {{ post.author }}
+      on
+      {{ post.updated_at }}</p>
     <a href="{% url 'post_update' pk=post.pk %}">Edit</a>
 
     {% for tag in tags %}
-    <span>{{ tag.name }}</span>
-{% endfor %}
+      <span>{{ tag.name }}</span>
+    {% endfor %}
   </div>
 
   <div class="post-actions">
@@ -26,7 +29,6 @@
             likes</span>
         </button>
       </form>
-
     {% endif %}
 
     <!-- Bookmark Button -->
@@ -44,27 +46,36 @@
     {% endif %}
   </div>
 
-
   {% for comment in comments %}
     <div>
-      <p>{{ comment.author }}: {{ comment.content }}</p>
+      <p>{{ comment.author }}:
+        {{ comment.content }}</p>
       {% if not comment.parent %}
         <!-- Reply 버튼 -->
-        <button onclick="toggleReplyForm('reply-form-{{ comment.id }}');">Reply</button>
-        <div id="reply-form-{{ comment.id }}" style="display:none;">
-          {% include 'blog/include/reply_form.html' with parent_id=comment.id form=comment_form %}
-        </div>
+        {% if user.is_authenticated %}
+          <button onclick="toggleReplyForm('reply-form-{{ comment.id }}');">Reply</button>
+          <div id="reply-form-{{ comment.id }}" style="display:none;">
+            {% include 'blog/include/reply_form.html' with parent_id=comment.id form=comment_form %}
+
+          </div>
+        {% endif %}
       {% endif %}
-      
+
       <!-- 대댓글 표시 -->
       {% for reply in comment.replies_list %}
-        <div class="reply  pl-4 border-l-2 border-gray-200">
-          <p class=" pl-4">{{ reply.author }}: {{ reply.content }}</p>
+        <div class="reply pl-4 border-l-2 border-gray-200">
+          <p>{{ reply.author }}:
+            {{ reply.content }}</p>
         </div>
       {% endfor %}
     </div>
   {% endfor %}
 
-  {% include 'blog/include/comment_form.html' with form=comment_form %}
-  
+  {% if user.is_authenticated %}
+    {% include 'blog/include/comment_form.html' with form=comment_form %}
+  {% else %}
+    <p>댓글을 남기려면
+      <a href="{% url 'login' %}">로그인</a>
+      해주세요.</p>
+  {% endif %}
 {% endblock %}

@@ -19,7 +19,7 @@ class Post(models.Model):
     author = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name="posts"
     )
-    summery = models.CharField(max_length=200, null=True, blank=True)
+    summary = models.CharField(max_length=200, null=True, blank=True)
     content = QuillField()
     thumbnail = models.ImageField(upload_to="thumbnails/", null=True, blank=True)
     tags = models.ManyToManyField(Tag, related_name="posts", blank=True)

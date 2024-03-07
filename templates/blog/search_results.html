@@ -1,0 +1,14 @@
+<!-- search_results.html -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>검색 결과</h2>
+    {% for post in posts %}
+        <div>
+            <h3><a href="{% url 'post_detail' post.pk %}">{{ post.title }}</a></h3>
+            <p>{{ post.summary }}</p>
+        </div>
+    {% empty %}
+        <p>검색 결과가 없습니다.</p>
+    {% endfor %}
+{% endblock %}

@@ -2,9 +2,7 @@ import json
 from django import forms
 from .models import Post, Comment, Tag
 from ajax_select.fields import (
-    AutoCompleteSelectField,
     AutoCompleteSelectMultipleField,
-    autoselect_fields_check_can_add,
 )
 
 
@@ -41,7 +39,7 @@ class PostForm(forms.ModelForm):
 
     class Meta:
         model = Post
-        fields = ["title", "summery", "content", "tags"]  # Removed 'author'
+        fields = ["title", "summary", "content", "tags"]  # Removed 'author'
 
     def clean_tags(self):
         tags_str = self.cleaned_data["tags"]
