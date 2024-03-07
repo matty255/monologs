@@ -3,8 +3,6 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django_quill.fields import QuillField
 from accounts.models import CustomUser
-from django.conf import settings
-from django.core.exceptions import ValidationError
 
 
 class Tag(models.Model):

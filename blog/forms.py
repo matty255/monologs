@@ -20,7 +20,6 @@ class PostAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(PostAdminForm, self).__init__(*args, **kwargs)
-        # If the instance already exists (e.g., during edit), initialize the tags field.
         if self.instance.pk:
             self.fields["tags"].initial = self.instance.tags.all()
 
@@ -39,12 +38,11 @@ class PostForm(forms.ModelForm):
 
     class Meta:
         model = Post
-        fields = ["title", "summary", "content", "tags"]  # Removed 'author'
+        fields = ["title", "summary", "content", "tags"]
 
     def clean_tags(self):
         tags_str = self.cleaned_data["tags"]
         tags_list = json.loads(tags_str)
-        # Convert tag names to tag IDs
         tag_ids = []
         for name in tags_list:
             tag, created = Tag.objects.get_or_create(name=name)

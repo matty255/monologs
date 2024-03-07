@@ -19,18 +19,16 @@ from django.views.generic import CreateView, UpdateView
 
 class RegisterView(CreateView):
     form_class = CustomUserCreationForm
-    success_url = reverse_lazy("private_profile")  # Adjust to your profile URL
+    success_url = reverse_lazy("private_profile")
     template_name = "accounts/register.html"
 
     def form_valid(self, form):
-        # Form is valid
         user = form.save()
         login(self.request, user)
         messages.success(self.request, "Registration successful.")
         return redirect(self.success_url)
 
     def form_invalid(self, form):
-        # Form is invalid
         messages.error(self.request, "Registration failed. Please check the form.")
         return super().form_invalid(form)
 
@@ -84,7 +82,7 @@ class PublicProfileView(DetailView):
     model = CustomUser
     template_name = "accounts/public_profile.html"
     context_object_name = "profile_user"
-    slug_field = "username"  # Or 'slug' based on your user model
+    slug_field = "username"
     slug_url_kwarg = "slug"
 
     def get_context_data(self, **kwargs):
@@ -102,28 +100,23 @@ class PrivateProfileView(LoginRequiredMixin, UpdateView):
     model = CustomUser
     form_class = UserProfileForm
     template_name = "accounts/private_profile.html"
-    success_url = reverse_lazy(
-        "private_profile"
-    )  # URL 이름은 프로젝트 설정에 따라 달라질 수 있음
+    success_url = reverse_lazy("private_profile")
 
     def get_object(self):
-        # 현재 로그인한 사용자의 인스턴스를 반환합니다.
+
         return self.request.user
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
-        # Fetch the ContentType for the Post model
         post_content_type = ContentType.objects.get_for_model(Post)
 
-        # Fetch the liked posts for the current user
         liked_content_ids = Like.objects.filter(
             user=user, content_type=post_content_type
         ).values_list("object_id", flat=True)
         liked_posts = Post.objects.filter(id__in=liked_content_ids)
 
-        # Fetch the bookmarked posts for the current user
         bookmarked_content_ids = Bookmark.objects.filter(
             user=user, content_type=post_content_type
         ).values_list("object_id", flat=True)
@@ -139,5 +132,5 @@ class PublicProfileView(DetailView):
     model = CustomUser
     template_name = "accounts/public_profile.html"
     context_object_name = "profile_user"
-    slug_field = "username"  # 또는 'slug', 사용자 모델에 따라 달라질 수 있음
+    slug_field = "username"
     slug_url_kwarg = "slug"

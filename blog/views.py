@@ -8,17 +8,14 @@ from django.views.generic import (
 )
 from django.urls import reverse_lazy
 from .models import Post, Comment, Tag, Like, Bookmark
-from .forms import PostForm, CommentForm, ReplyForm
+from .forms import PostForm, CommentForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.contrib import messages
 from .models import Like
-from django.core.cache import cache
 from django.db import transaction
-import json
-from django.forms.models import model_to_dict
 from django.shortcuts import get_object_or_404
 
 
@@ -143,7 +140,6 @@ class PostDetailView(DetailView):
                 if post.thumbnail
                 else ""
             ),
-            # 추가적으로 필요한 메타 정보를 여기에 추가
         }
 
         if self.request.user.is_authenticated:
@@ -165,9 +161,7 @@ class PostDetailView(DetailView):
             ).count()
             context["like_count"] = like_count
 
-        # 기존 댓글 가져오기
         comments = post.comments.filter(parent__isnull=True)
-        # 대댓글 리스트 추가
         for comment in comments:
             comment.replies_list = comment.replies.all()
 
@@ -186,7 +180,6 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Fetch tags directly from the database
         context["tags_list"] = list(Tag.objects.all().values_list("name", flat=True))
         return context
 
@@ -207,9 +200,7 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Fetch all tags for autocomplete functionality
         context["tags_list"] = list(Tag.objects.all().values_list("name", flat=True))
-        # Get a list of names of tags associated with this specific post
         if self.object:
             context["post_tags"] = list(self.object.tags.values_list("name", flat=True))
         return context
@@ -228,23 +219,18 @@ class PostDeleteView(DeleteView):
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
     form_class = CommentForm
-    template_name = (
-        "blog/include/comment_form.html"  # 이 경로를 적절히 수정해야 할 수 있습니다.
-    )
+    template_name = "blog/include/comment_form.html"
 
     def get_success_url(self):
-        # 댓글이 달린 게시물로 리디렉션
         return reverse_lazy("blog_detail", kwargs={"pk": self.object.post.pk})
 
     def form_valid(self, form):
         form.instance.author = self.request.user
         form.instance.post = get_object_or_404(Post, pk=self.kwargs.get("post_pk"))
 
-        # 대댓글의 경우 parent 댓글의 ID를 가져옵니다.
         parent_id = self.request.POST.get("parent_id")
         if parent_id:
             form.instance.parent = get_object_or_404(Comment, id=parent_id)
-            # 대댓글 depth 확인 - 이미 대댓글이 있다면, 부모를 그대로 유지합니다.
             parent_comment = form.instance.parent
             if parent_comment.parent is not None:
                 form.instance.parent = parent_comment.parent
