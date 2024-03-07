@@ -56,19 +56,29 @@ gantt
     프로젝트 종료          :         end, 2024-03-11, 2d
 ```
 
+## figma
+
+- 와이어프레임(아직 없음)
+[피그마](https://www.figma.com/files/project/212207199/monologs?fuid=1012359410667987596)
+
+- 디자인
+
 ## 설치 방법
 프로젝트를 설치하고 실행하기 위한 단계별 지침은 다음과 같습니다.
 
 1. **프로젝트 클론**:
     ```
     git clone
-    cd Monolog
+    cd monologs
     ```
 
-2. **가상 환경 설정 및 활성화**:
+2. **가상 환경 생성 및 활성화**:
     ```
     python -m venv venv
+    # custom commands는 7번으로
+
     source venv/bin/activate
+
     ```
 
 3. **필요한 패키지 설치**:
@@ -95,13 +105,17 @@ gantt
     ./venv/Scripts/activate
     ```
 
-6. **run server**:
+6. **기본 커맨드(PowerShell)**:
     ```
    python manage.py runserver
     ```
+    **다른 터미널에서 동시 실행**
+    ```
+    python manage.py tailwind start
+    ```
 
 
-7. **custom commands**:
+7. **custom commands(Git Bash)**:
     ```
     ./commands.sh
     reinstall
