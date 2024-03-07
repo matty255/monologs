@@ -4,10 +4,15 @@
 ## 프로젝트 개요(제작 중)
 `monologs`는 사용자가 CK 에디터를 사용하여 블로그 포스트를 작성하고, 로그인 및 회원가입 기능을 통해 사용자 인증을 관리하는 동시에, 게시글을 올릴 수 있는 게시판을 제공하는 웹 애플리케이션입니다. 이 프로젝트는 Django 프레임워크를 기반으로 하고, TailwindCSS를 사용하여 스타일링을 합니다. 또한, django-tailwind 라이브러리를 사용함으로써 개발 과정에서 hot reload 기능을 활용하여 스타일 변경 사항을 즉시 미리 볼 수 있어, 커스터마이징이 편리합니다.
 
-## 기능
-- **CK 에디터를 통한 블로그 포스트 작성**: 사용자는 풍부한 텍스트 편집 기능을 제공하는 CK 에디터를 사용하여 블로그 포스트를 작성할 수 있습니다.
+## 기능(제작 중)
+- **Quill 에디터를 통한 블로그 포스트 작성**: 사용자는 풍부한 텍스트 편집 기능을 제공하는 CK 에디터를 사용하여 블로그 포스트를 작성할 수 있습니다. 이 오픈소스 리치 텍스트 에디터는 기본적으로 이미지업로드와 동영상 임베딩 기능을 제공합니다.
 - **회원가입 및 로그인**: 회원으로 가입하면 게시글과 댓글을 쓸 수 있습니다.
 - **게시판 기능**: 사용자는 자신의 블로그 포스트를 게시하고 다른 사용자의 포스트를 볼 수 있습니다.
+- **팔로우 기능**: 사용자는 다른 사용자를 팔로우 할 수 있습니다.
+- **공유 기능**: 
+- **AI 글 작성**:
+- **북마크**:
+- **좋아요 기능**:
 
 
 ## ERD
@@ -16,71 +21,7 @@
 - tags 중계 테이블
 - GenericForeignKey를 사용해서 post와 comment에 like와 bookmark 추가
 
-```
-Table CustomUser {
-  id int [pk, increment] // auto-increment
-  username varchar
-  email varchar
-  profile_status varchar
-  profile_message text
-}
 
-Table Tag {
-  id int [pk, increment]
-  name varchar [unique]
-}
-
-Table Post {
-  id int [pk, increment]
-  title varchar(100)
-  summary  varchar(200)
-  author_id int [ref: > CustomUser.id]
-  content text
-  thumbnail varchar
-  created_at datetime
-  updated_at datetime
-}
-
-Table Comment {
-  id int [pk, increment]
-  content text
-  author_id int [ref: > CustomUser.id]
-  created_at datetime
-  updated_at datetime
-  post_id int [ref: > Post.id]
-  parent_id int [null, ref: > Comment.id] 
-}
-
-Table Like {
-  id int [pk, increment]
-  user_id int [ref: > CustomUser.id]
-  content_type_id int
-  object_id int
-}
-
-Table Bookmark {
-  id int [pk, increment]
-  user_id int [ref: > CustomUser.id]
-  content_type_id int
-  object_id int
-}
-
-Table Follow {
-  id int [pk, increment]
-  follower_id int [ref: > CustomUser.id]
-  following_id int [ref: > CustomUser.id]
-}
-
-// M:N 관계인 Post와 Tag를 위한 중계 테이블
-Table Post_Tags {
-  post_id int [ref: > Post.id]
-  tag_id int [ref: > Tag.id]
-}
-
-// GenericForeignKey를 직접적으로 표현하는 것은 dbdiagram.io에서 지원하지 않습니다.
-// Like 및 Bookmark 모델에서 사용되는 content_type_id와 object_id는 
-// 실제 구현시 ContentType 프레임워크와 연결되어야 하며, 여기서는 간략화하여 표현하였습니다.
-```
 
 ## WBS
 

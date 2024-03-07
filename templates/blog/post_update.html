@@ -1,13 +1,6 @@
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Update Post</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
-</head>
-<body>
+
 
 <form method="post" id="post-form">{% csrf_token %}
     {{ form.media }}
@@ -66,5 +59,3 @@ console.log(tagsList)
       });
 </script>
 
-</body>
-</html>

@@ -198,14 +198,19 @@ QUILL_CONFIG = {
             "quality": 0.8,
             "maxWidth": 2000,
             "maxHeight": 2000,
-            "imageType": "image/jpeg",
+            "imageType": "image/jpeg, image/png, image/webp, image/gif",
             "debug": False,
             "suppressErrorLogging": True,
         },
         # quill-resize
         "resize": {
             "showSize": True,
-            "locale": {},
+            "locale": {
+                "size": "크기",
+                "small": "작게",
+                "large": "크게",
+                "default": "기본",
+            },
         },
     },
 }
