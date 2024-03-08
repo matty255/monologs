@@ -212,8 +212,19 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
 
 class PostDeleteView(DeleteView):
     model = Post
-    template_name = "blog/post_confirm_delete.html"
+    template_name = "blog/include/post_confirm_delete.html"
     success_url = reverse_lazy("blog_list")
+
+    def get_object(self, queryset=None):
+        obj = super(PostDeleteView, self).get_object()
+        if not obj.author == self.request.user:
+            raise HttpResponseForbidden()
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["post"] = self.get_object()
+        return context
 
 
 class CommentCreateView(LoginRequiredMixin, CreateView):

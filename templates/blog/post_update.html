@@ -3,9 +3,12 @@
 
 {% block content %}
 
-    <h2 class="a11y">update</h2>
 
-    <form method="post" id="post-form">
+
+
+    <h2 class="a11y">create</h2>
+
+    <form method="post" id="post-form" enctype="multipart/form-data">
       {% csrf_token %}
       {{ form.media }}
       
@@ -27,15 +30,23 @@
           {{ form.content }}
       </div>
       
+      <div class="form-field-wrapper">
+          {{ form.thumbnail.errors }}
+          <label for="{{ form.thumbnail.id_for_label }}">Thumbnail:</label>
+          {{ form.thumbnail }}
+      </div>
+
+   
+          {{ form.tags }} 
+   
+      
       <!-- 여기에 thumbnail과 tags 필드를 추가하시면 됩니다 -->
   
       <button type="submit">Submit</button>
   </form>
 
+  <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js"></script>
 
-
-  {% endblock %}
-<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js"></script>
 <script>
     var inputElm = document.querySelector('.tagify-field');
     var tagsList = {{tags_list | safe}}
@@ -86,3 +97,6 @@ console.log(tagsList)
       });
 </script>
 
+  {% endblock %}
+  
+   

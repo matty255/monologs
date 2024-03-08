@@ -91,6 +91,7 @@ module.exports = {
           };
           addUtilities(newUtilities, ['responsive', 'hover']);
         }),
+        require("daisyui"),
         require("tailwind-scrollbar-hide"),
         require('@tailwindcss/forms'),
         require('@tailwindcss/typography'),

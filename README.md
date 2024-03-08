@@ -135,6 +135,7 @@ gantt
 - Django_browser_reload
 - Django-ajax_select
 - Tom Select
+- daisyUI
 
 ## 개발 환경 설정
 개발을 시작하기 전에, 다음 도구들이 시스템에 설치되어 있어야 합니다:

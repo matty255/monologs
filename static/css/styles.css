@@ -1,13 +1,14 @@
 #post-form {
     background-color: #12121275;
-    color:white;
+  
     position: sticky !important;
     top: 68px !important;
     }
     
     .ql-editor {
     background-color: #333;
-    /* min-height: 300px; */
+    /* min-height: 300px; */  
+    color:white;
     }
     .ql-toolbar  {
     background-color: #505050;

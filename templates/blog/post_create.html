@@ -8,7 +8,7 @@
 
     <h2 class="a11y">create</h2>
 
-    <form method="post" id="post-form">
+    <form method="post" id="post-form" enctype="multipart/form-data">
       {% csrf_token %}
       {{ form.media }}
       
@@ -30,58 +30,71 @@
           {{ form.content }}
       </div>
       
+      <div class="form-field-wrapper">
+          {{ form.thumbnail.errors }}
+          <label for="{{ form.thumbnail.id_for_label }}">Thumbnail:</label>
+          {{ form.thumbnail }}
+      </div>
+
+   
+          {{ form.tags }} 
+   
+      
       <!-- 여기에 thumbnail과 tags 필드를 추가하시면 됩니다 -->
   
       <button type="submit">Submit</button>
   </form>
 
-
-  {% endblock %}
-    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js"></script>
-    <script>
-      // Ensure you have a text input field with the class 'tagify-field' for tags.
-      var inputElm = document.querySelector('.tagify-field');
-      var tagsList = {{tags_list | safe}}
+  <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js"></script>
+  <script>
+    console.log({{tags_list | safe}})
+    // Ensure you have a text input field with the class 'tagify-field' for tags.
+    var inputElm = document.querySelector('.tagify-field');
+    var tagsList = {{tags_list | safe}}
 
 // This injects your tags_list into the JS as an array.
-      // Initialize Tagify on the tags input field
-      var tagify = new Tagify(inputElm, {
-        whitelist: tagsList,
-        dropdown: {
-          maxItems: 20, // <- mixumum allowed rendered suggestions
-          classname: "tags-look", // <- custom classname for this dropdown, so it could be targeted
-          enabled: 0, // <- show suggestions on focus
-          closeOnSelect: false // <- do not hide the suggestions dropdown once an item has been selected
-        }
+    // Initialize Tagify on the tags input field
+    var tagify = new Tagify(inputElm, {
+      whitelist: tagsList,
+      dropdown: {
+        maxItems: 20, // <- mixumum allowed rendered suggestions
+        classname: "tags-look", // <- custom classname for this dropdown, so it could be targeted
+        enabled: 0, // <- show suggestions on focus
+        closeOnSelect: false // <- do not hide the suggestions dropdown once an item has been selected
+      }
+    });
+
+    // Listen to the 'submit' event of the form and serialize the tags from Tagify
+    document
+      .getElementById('post-form')
+      .addEventListener('submit', function (e) {
+        // Get the value of the tagify input before submitting the form
+        var tagifyValues = tagify
+          .value
+          .map(function (tag) {
+            return tag.value;
+          });
       });
 
-      // Listen to the 'submit' event of the form and serialize the tags from Tagify
-      document
-        .getElementById('post-form')
-        .addEventListener('submit', function (e) {
-          // Get the value of the tagify input before submitting the form
-          var tagifyValues = tagify
-            .value
-            .map(function (tag) {
-              return tag.value;
-            });
-        });
+      document.getElementById('post-form').addEventListener('submit', function(e){
+        // Prevent the default form submission
+        e.preventDefault();
+        
+        // Get the tag data from Tagify
+        var tagData = tagify.value.map(tag => tag.value);
+      
+        // Assign the transformed tag data to a hidden input, or modify the form data directly
+        var hiddenInput = document.createElement('input');
+        hiddenInput.setAttribute('type', 'hidden');
+        hiddenInput.setAttribute('name', 'tags'); // The name attribute should match your model field name
+        hiddenInput.setAttribute('value', JSON.stringify(tagData));
+        this.appendChild(hiddenInput);
+      
+        // Now, submit the form
+        this.submit();
+      });
+  </script>
 
-        document.getElementById('post-form').addEventListener('submit', function(e){
-          // Prevent the default form submission
-          e.preventDefault();
-          
-          // Get the tag data from Tagify
-          var tagData = tagify.value.map(tag => tag.value);
-        
-          // Assign the transformed tag data to a hidden input, or modify the form data directly
-          var hiddenInput = document.createElement('input');
-          hiddenInput.setAttribute('type', 'hidden');
-          hiddenInput.setAttribute('name', 'tags'); // The name attribute should match your model field name
-          hiddenInput.setAttribute('value', JSON.stringify(tagData));
-          this.appendChild(hiddenInput);
-        
-          // Now, submit the form
-          this.submit();
-        });
-    </script>
+  {% endblock %}
+  
+   

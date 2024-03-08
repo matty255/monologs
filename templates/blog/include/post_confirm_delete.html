@@ -1,0 +1,31 @@
+<!-- blog/include/post_confirm_delete.html -->
+
+<!-- 모달 트리거 버튼 -->
+<button class="btn" onclick="my_modal_1.showModal()">
+    Delete Post
+  </button>
+  
+  <!-- 모달 -->
+  <dialog id="my_modal_1" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-box">
+        <div class="modal-header">
+          <h5>Delete Post</h5>
+          <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          </form>
+        </div>
+        <form method="post" action="{% url 'post_delete' post.pk %}">
+          {% csrf_token %}
+          <div class="modal-body">
+            <p>Are you sure you want to delete "{{ post.title }}"?</p>
+          </div>
+          <div class="modal-footer">
+            <label class="modal-backdrop" for="my_modal_7">Close</label>
+            <button type="submit" class="btn btn-danger">Delete</button>
+          </div>
+        </form>
+      </div>
+    </div>
+</dialog>
+

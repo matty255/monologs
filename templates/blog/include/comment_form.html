@@ -1,7 +1,20 @@
 <!-- blog/include/comment_form.html -->
-<form method="post" action="{% url 'comment_create' post.pk %}">
+<form method="post" class="w-full max-w-xl mx-auto" action="{% url 'comment_create' post.pk %}">
     {% csrf_token %}
+    
+    <!-- parent_id 필드 - 대댓글 기능을 위한 필드로 숨겨둡니다 -->
     <input type="hidden" name="parent_id" value="{{ parent_id|default_if_none:'' }}" />
-    {{ form.as_p }}
+
+    <!-- 댓글 내용 입력 필드 -->
+    <div class="form-field-wrapper">
+        {% if form.content.errors %}
+            <p class="form-error">
+                {{ form.content.errors.as_text }}
+            </p>
+        {% endif %}
+        <textarea name="content" id="id_content" placeholder="Add a comment..." required>{{ form.content.value|default_if_none:'' }}</textarea>
+    </div>
+
+    <!-- 제출 버튼 -->
     <button type="submit">Add comment</button>
 </form>

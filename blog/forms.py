@@ -16,7 +16,7 @@ class PostAdminForm(forms.ModelForm):
 
     class Meta:
         model = Post
-        fields = ["title", "content", "author", "tags"]
+        fields = ["title", "content", "summary", "thumbnail", "author", "tags"]
 
     def __init__(self, *args, **kwargs):
         super(PostAdminForm, self).__init__(*args, **kwargs)
