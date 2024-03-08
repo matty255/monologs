@@ -1,17 +1,42 @@
-{% load static %}
+{% extends "base.html" %}
+
+
+{% block content %}
 
 
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
 
+    <h2 class="a11y">create</h2>
 
-
-    <form method="post" id="post-form">{% csrf_token %}
+    <form method="post" id="post-form">
+      {% csrf_token %}
       {{ form.media }}
-      {{ form.as_p }}
+      
+      <div class="form-field-wrapper">
+          {{ form.title.errors }}
+          <label for="{{ form.title.id_for_label }}">Title:</label>
+          {{ form.title }}
+      </div>
+      
+      <div class="form-field-wrapper">
+          {{ form.summary.errors }}
+          <label for="{{ form.summary.id_for_label }}">Summary:</label>
+          {{ form.summary }}
+      </div>
+      
+      <div class="form-field-wrapper">
+          {{ form.content.errors }}
+          <label for="{{ form.content.id_for_label }}">Content:</label>
+          {{ form.content }}
+      </div>
+      
+      <!-- 여기에 thumbnail과 tags 필드를 추가하시면 됩니다 -->
+  
       <button type="submit">Submit</button>
-    </form>
+  </form>
 
+
+  {% endblock %}
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js"></script>
     <script>
       // Ensure you have a text input field with the class 'tagify-field' for tags.

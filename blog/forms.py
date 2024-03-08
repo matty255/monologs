@@ -38,7 +38,11 @@ class PostForm(forms.ModelForm):
 
     class Meta:
         model = Post
-        fields = ["title", "summary", "content", "tags"]
+        fields = ["title", "summary", "content", "tags", "thumbnail"]
+
+    def __init__(self, *args, **kwargs):
+        super(PostForm, self).__init__(*args, **kwargs)
+        self.fields["content"].widget.attrs.update({"class": "quill-field"})
 
     def clean_tags(self):
         tags_str = self.cleaned_data["tags"]
