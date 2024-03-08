@@ -5,6 +5,8 @@
  * https://unpkg.com/browse/tailwindcss@latest/stubs/defaultConfig.stub.js
  */
 
+const plugin = require('tailwindcss/plugin');
+
 module.exports = {
     content: [
         /**
@@ -44,7 +46,9 @@ module.exports = {
     theme: {
         extend: {
             colors: {
+              'clear-white': 'rgba(255, 255, 255, 0.75)',
                 base: {
+                 
                   'light-pink': '#FAF3F3',
                   'light-primary': '#F48FB1',
                   'light-secondary': '#A2D2FF',
@@ -57,6 +61,14 @@ module.exports = {
                   'dark-text': '#EAE0D5',
                 },
               },
+              backgroundImage: theme => ({
+                'custom-full-image': "url('../../../static/images/banners/background.webp')",
+              }),
+              fontFamily: {
+                'Nanum': ['NanumSquare', 'sans-serif'],
+                'Happiness': ['HappinessSans', 'sans-serif'],
+                'WhiteTail': ['WhiteTail', 'sans-serif'],
+              },
             },
           },
     plugins: [
@@ -65,6 +77,21 @@ module.exports = {
          * for forms. If you don't like it or have own styling for forms,
          * comment the line below to disable '@tailwindcss/forms'.
          */
+        plugin(function({ addUtilities }) {
+          const newUtilities = {
+            '.a11y': {
+              display: 'inline-block',
+              position: 'absolute',
+              overflow: 'hidden',
+              width: '1px',
+              height: '1px',
+              border: '0',
+              clipPath: 'inset(50%)', 
+            },
+          };
+          addUtilities(newUtilities, ['responsive', 'hover']);
+        }),
+        require("tailwind-scrollbar-hide"),
         require('@tailwindcss/forms'),
         require('@tailwindcss/typography'),
         require('@tailwindcss/aspect-ratio'),

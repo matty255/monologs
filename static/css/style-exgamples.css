@@ -1,0 +1,360 @@
+/* common css */
+html {
+    scroll-behavior: smooth;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    line-height: 20px;
+}
+
+ul,
+ol {
+    list-style: none;
+}
+
+a {
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    border: none;
+    cursor: pointer;
+}
+
+img {
+    width: 100%;
+    vertical-align: top;
+}
+
+/*inline-block 은 inline 요소의 width, height 값 조절을 위해, position:absolute 는 노멀 플로우에서 요소의 위치를 지우기 위해*/
+.a11y {
+    display: inline-block;
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    border: 0;
+    clip-path: inset(50%);
+}
+
+/* 공통 주황 버튼 */
+.btn-common {
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: 700;
+    background-color: #D97652;
+    border-radius: 40px;
+    color: #fff;
+}
+
+/* header 파트 */
+
+.cont-header {
+    display: flex;
+    justify-content: center;
+    background-color: #F2E9D8;
+}
+
+.cont-header .box-header {
+    flex-basis: 1280px;
+    padding: 26px 0 262px;
+    background: url(../images/img_hodu_header.png) bottom right no-repeat;
+}
+
+.cont-header h1 {
+    display: inline-block;
+    margin: 5px 0 0 0;
+}
+
+.cont-header nav {
+    float: right;
+}
+
+
+.cont-header nav .list-menu {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.cont-header nav li:last-child {
+    margin-left: 19px;
+}
+
+
+.cont-header h2 {
+    margin-top: 231px;
+    font-weight: 700;
+    font-size: 48px;
+    line-height: 60px;
+}
+
+.cont-header .txt-header {
+    width: 420px;
+    margin: 40px 0;
+}
+
+
+/* main 파트  */
+.cont-main {
+    position: relative;
+    max-width: 1280px;
+    margin: 80px auto 0;
+}
+
+.cont-main .main-intro figure {
+    display: flex;
+    align-items: center;
+    gap: 110px;
+}
+
+.cont-main .main-intro img {
+    box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.25);
+    border-radius: 30px;
+}
+
+.main-intro figcaption h2 {
+    margin-bottom: 30px;
+    font-weight: 700;
+    font-size: 36px;
+    line-height: 45px;
+}
+
+.cont-main .main-photos {
+    margin: 120px 0 68px;
+    padding-bottom: 80px;
+    border-bottom: 1px solid #C4C4C4;
+}
+
+.main-photos h2 {
+    margin-bottom: 40px;
+    font-weight: 700;
+    font-size: 48px;
+    line-height: 60px;
+    color: #D97652;
+    text-align: center;
+}
+
+.main-photos .txt-photos {
+    text-align: center;
+}
+
+.main-photos .txt-photos strong {
+    color: #D97652;
+}
+
+.main-photos .list-photos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 72px;
+    margin: 88px 0 90px;
+}
+
+.main-photos .list-photos li {
+    flex-basis: 378px;
+    flex-grow: 1;
+}
+
+/* 이미지가 컨테이너 요소 안에 있다면 컨테이너 요소를 통해 클리핑 한다는 느낌으로  */
+.main-photos .list-photos button {
+    overflow: hidden;
+    box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.25);
+    border-radius: 30px;
+}
+
+.main-photos .box-extends {
+    text-align: center;
+    font-weight: 700;
+    font-size: 24px;
+}
+
+.box-extends .end {
+    display: none;
+}
+
+.box-extends.stop .end {
+    display: inline-block;
+}
+
+.box-extends.stop .more {
+    display: none;
+}
+
+.main-photos .box-extends p {
+    line-height: 30px;
+}
+
+.box-extends .btn-common {
+    margin-top: 28px;
+}
+
+.cont-main .main-map {
+    margin-bottom: 80px;
+}
+
+.main-map h2 {
+    font-size: 36px;
+    line-height: 45px;
+    margin-bottom: 20px;
+}
+
+.main-map address {
+    margin-bottom: 48px;
+    font-style: normal;
+    color: #606367;
+}
+
+.main-map #map {
+    height: 520px;
+    background-color: black;
+    border-radius: 12px;
+}
+
+.widget-subscribe {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 50px 58px;
+    border-radius: 30px;
+    margin-bottom: -93px;
+    background-color: #263140;
+    color: #fff;
+}
+
+.widget-subscribe h3 {
+    margin-bottom: 18px;
+    font-weight: 700;
+    font-size: 36px;
+    line-height: 45px;
+}
+
+.widget-subscribe .form-subscribe {
+    position: relative;
+    flex-basis: 530px;
+}
+
+.widget-subscribe .form-subscribe::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 30px;
+    width: 24px;
+    height: 24px;
+    background-image: url(../images/icon_mail.png);
+    z-index: 1;
+}
+
+
+.widget-subscribe .form-subscribe input {
+    position: relative;
+    width: 100%;
+    padding: 20px 135px 20px 68px;
+    overflow: hidden;
+    border-radius: 60px;
+    border: none;
+    box-sizing: border-box;
+}
+
+.widget-subscribe .form-subscribe input:focus-visible {
+    outline: 2px solid lightblue;
+    outline-offset: 3px;
+}
+
+.widget-subscribe .form-subscribe .btn-common {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* footer 파트 */
+.cont-footer::before {
+    display: block;
+    content: '';
+    width: 100%;
+    height: 340px;
+    background: url(../images/bg_footer.jpeg) center/cover no-repeat;
+}
+
+.cont-footer .box-footer {
+    max-width: 1280px;
+    padding: 45px 0px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+}
+
+.cont-footer .list-link-sns {
+    display: flex;
+    gap: 20px;
+}
+
+.cont-footer .list-link-sns a {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: url(../images/icon_blog.svg) #F29D52 center no-repeat;
+}
+
+.cont-footer .list-link-sns .link-insta {
+    background-image: url(../images/icon_insta.svg);
+}
+
+.cont-footer .list-link-sns .link-facebook {
+    background-image: url(../images/icon_facebook.svg);
+}
+
+.cont-footer .list-link-sns .link-youtube {
+    background-image: url(../images/icon_youtube.svg);
+}
+
+
+/* 유틸리티 파트 */
+
+.link-top {
+    position: fixed;
+    bottom: 179px;
+    right: 24px;
+    width: 50px;
+    height: 50px;
+    border: 1px solid #c4c4c4;
+    border-radius: 50%;
+    background: url(../images/icon_arrow_up_normal.svg) white center no-repeat;
+}
+
+.link-top:hover {
+    background-image: url(../images/icon_arrow_up_hover.svg);
+}
+
+dialog {
+    text-align: center;
+    padding: 60px 108px 40px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 30px;
+    border: none;
+    background-image: url(../images/bg_modal.jpeg);
+}
+
+dialog img {
+    width: 110px;
+}
+
+dialog strong {
+    display: inline-block;
+    margin: 24px 0 12px;
+    font-size: 36px;
+    line-height: 45px;
+    color: #D97652;
+
+}
+
+dialog button {
+    margin-top: 38px;
+}
