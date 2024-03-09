@@ -3,7 +3,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django_quill.fields import QuillField
 from accounts.models import CustomUser
-from datetime import datetime
+from .mixins import UploadToPathMixin
 
 
 class Tag(models.Model):
@@ -13,11 +13,7 @@ class Tag(models.Model):
         return self.name
 
 
-def upload_to(instance, filename):
-    return "thumbnails/{0}/{1}".format(datetime.now().strftime("%Y/%m/%d"), filename)
-
-
-class Post(models.Model):
+class Post(UploadToPathMixin, models.Model):
 
     title = models.CharField(max_length=100)
     author = models.ForeignKey(
@@ -26,7 +22,7 @@ class Post(models.Model):
     summary = models.CharField(max_length=200, null=True, blank=True)
     content = QuillField()
     thumbnail = models.ImageField(
-        upload_to=upload_to, null=True, blank=True
+        upload_to=UploadToPathMixin.upload_to, null=True, blank=True
     )  # 변경된 부분
     tags = models.ManyToManyField(Tag, related_name="posts", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

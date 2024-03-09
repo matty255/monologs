@@ -12,6 +12,13 @@
     <meta property="og:title" content="{{ meta.title|default:"Monologs" }}">
     <meta property="og:description" content="{{ meta.description|default:"Description" }}">
     <meta property="og:image" content="{{ meta.image|default:"URL_to_default_image" }}">
+    
+  <!-- favicon -->
+  <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}" />
+  <!-- Bootstrap CSS -->
+
+  <!-- cropper -->
+ 
     <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap4.min.css" rel="stylesheet">    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
@@ -45,8 +52,10 @@
                 <a class="text-sm uppercase mx-3 text-white cursor-pointer hover:text-indigo-600" href="{% url 'blog_list' %}">Blog</a>
                 <a class="text-sm uppercase mx-3 text-white cursor-pointer hover:text-indigo-600" href="{% url 'post_create' %}">Create</a>
                 {% if request.user.is_authenticated %}
-                {% if profile_picture %}
-                <img src="{{ profile_picture }}" class="h-16" alt="Profile Picture">
+             {% if profile_picture %}
+                <img src="{{ profile_picture }}" class="h-16 rounded-full" alt="Profile Picture">
+                {% else %}
+                <img src="{% static 'images/logos/picture-default.webp' %}" class="h-16 rounded-full" alt="Profile Picture">
             {% endif %}
                 <a class="text-sm uppercase mx-3 text-white cursor-pointer hover:text-indigo-600" href="{% url 'private_profile' %}">{{ request.user.username }}</a>
                 <a class="text-sm uppercase mx-3 text-white cursor-pointer hover:text-indigo-600" href="{% url 'logout' %}?next={{ request.path }}" class="btn btn-primary">Logout</a>

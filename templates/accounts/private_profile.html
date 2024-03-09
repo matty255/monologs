@@ -1,12 +1,49 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ request.user.username }}'s Profile{% endblock %}
+
+
 
 {% block content %}
-  <h1>{{ private_profile.username }}'s Profile</h1>
-  <form method="post" enctype="multipart/form-data">
+
+<section class="bg-clear-white sticky top-0">
+  <h1 class="pt-10 text-xl font-Nanum">{{ request.user.username }}'s Profile</h1>
+  <form method="post" action="{% url 'profile_image_delete' %}">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">프로필 사진 업데이트</button>
+    <button type="submit" class="btn btn-danger">프로필 이미지 삭제</button>
 </form>
+  <div class="pt-10">
+    {% block extra_head %}
+    {{ form.media }}
+    {% endblock %}
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-field-wrapper">
+        {% if profile_picture %}
+        <img src="{{ profile_picture }}" class="h-16 rounded-full" alt="Profile Picture">
+        {% else %}
+        <img src="{% static 'images/logos/picture-default.webp' %}" class="h-16 rounded-full" alt="Profile Picture">
+    {% endif %}
+
+          <label for="{{ form.profile_picture.id_for_label }}">{{ form.profile_picture.label }}</label>
+          {{ form.profile_picture }}
+          {% comment %} {% include "accounts/include/crop.html" %}
+          <button type="button" id="save-crop-button">Save Crop</button> {% endcomment %}
+   
+      <div class="form-field-wrapper">
+          <label for="{{ form.profile_status.id_for_label }}">{{ form.profile_status.label }}</label>
+          {{ form.profile_status }}
+      </div>
+      <div class="form-field-wrapper">
+          <label for="{{ form.profile_message.id_for_label }}">{{ form.profile_message.label }}</label>
+          {{ form.profile_message }}
+      </div>
+
+    </form>
+    {% include "accounts/include/crop.html" %}
+        
+</div>
   <h2>Liked Posts</h2>
   {% for post in liked_posts %}
     <p>
@@ -20,4 +57,7 @@
       <a href="{% url 'blog_detail' post.pk %}">{{ post.title }}</a>
     </p>
   {% endfor %}
+  </section>
+
+
 {% endblock %}

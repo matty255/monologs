@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.core.exceptions import ValidationError
-from .models import CustomUser
+from .models import CustomUser, CroppedImage
 from django.utils.translation import gettext_lazy as _
 
 
@@ -41,4 +41,10 @@ class CustomUserCreationForm(UserCreationForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ["profile_picture"]
+        fields = []
+
+
+class ImageUploadForm(forms.ModelForm):
+    class Meta:
+        model = CroppedImage
+        fields = ("file",)

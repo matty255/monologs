@@ -10,11 +10,18 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from .models import CustomUser
 from django.contrib.auth.views import LoginView
-from .forms import CustomLoginForm, CustomUserCreationForm, UserProfileForm
-from django.urls import reverse_lazy
+from .forms import (
+    CustomLoginForm,
+    CustomUserCreationForm,
+    UserProfileForm,
+    ImageUploadForm,
+)
+from django.urls import reverse_lazy, reverse
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth import authenticate, login
 from django.views.generic import CreateView, UpdateView
+from django.http import JsonResponse
+from django.shortcuts import render
 
 
 class RegisterView(CreateView):
@@ -96,36 +103,97 @@ class PublicProfileView(DetailView):
         return context
 
 
+class ProfileImageDeleteView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        if user.profile_picture:
+            user.profile_picture.delete()
+            user.profile_picture = None
+            user.save()
+        return redirect("private_profile")
+
+
 class PrivateProfileView(LoginRequiredMixin, UpdateView):
     model = CustomUser
     form_class = UserProfileForm
+    second_form_class = ImageUploadForm
     template_name = "accounts/private_profile.html"
     success_url = reverse_lazy("private_profile")
 
     def get_object(self):
-
         return self.request.user
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user
-
-        post_content_type = ContentType.objects.get_for_model(Post)
-
-        liked_content_ids = Like.objects.filter(
-            user=user, content_type=post_content_type
-        ).values_list("object_id", flat=True)
-        liked_posts = Post.objects.filter(id__in=liked_content_ids)
-
-        bookmarked_content_ids = Bookmark.objects.filter(
-            user=user, content_type=post_content_type
-        ).values_list("object_id", flat=True)
-        bookmarked_posts = Post.objects.filter(id__in=bookmarked_content_ids)
-
-        context["liked_posts"] = liked_posts
-        context["bookmarked_posts"] = bookmarked_posts
-
+        if "image_form" not in context:
+            context["image_form"] = (
+                self.second_form_class()
+            )  # 이미지 업로드 폼을 컨텍스트에 추가
         return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        image_form = self.second_form_class(request.POST, request.FILES)
+
+        if form.is_valid() and image_form.is_valid():
+
+            cropped_image = image_form.save()
+            user = request.user
+            if user.profile_picture:
+                user.profile_picture.delete()
+            user.profile_picture = cropped_image
+            user.save()
+
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+
+class UploadAndCropView(LoginRequiredMixin, View):
+    form_class = ImageUploadForm
+    template_name = "accounts/include/crop.html"
+    login_url = reverse_lazy("login")
+
+    def get(self, request, *args, **kwargs):
+
+        form = self.form_class()
+        return render(request, self.template_name, {"form": form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, request.FILES)
+        if form.is_valid():
+            if request.user.profile_picture:
+
+                request.user.profile_picture.delete()
+
+            cropped_image = form.save()
+            user = request.user
+            user.profile_picture = cropped_image
+            user.save()
+            image_url = cropped_image.file.url
+            return JsonResponse(
+                {
+                    "message": "Profile picture updated successfully.",
+                    "imageUrl": image_url,
+                    "imageId": cropped_image.id,
+                }
+            )
+        return render(request, self.template_name, {"form": form})
+
+
+class DeleteProfilePictureView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        user_id = kwargs.get("user_id")
+        user = get_object_or_404(CustomUser, pk=user_id)
+        if user.profile_picture:
+            user.profile_picture.delete()
+            user.profile_picture = None
+            user.save()
+            messages.success(request, "Profile picture deleted.")
+        else:
+            messages.info(request, "No profile picture to delete.")
+        return HttpResponseRedirect(reverse("admin:index"))
 
 
 class PublicProfileView(DetailView):
