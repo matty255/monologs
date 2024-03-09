@@ -22,6 +22,9 @@ from django.contrib.auth import authenticate, login
 from django.views.generic import CreateView, UpdateView
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.generic.edit import DeleteView
+from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import UserPassesTestMixin
 
 
 class RegisterView(CreateView):
@@ -194,6 +197,16 @@ class DeleteProfilePictureView(LoginRequiredMixin, View):
         else:
             messages.info(request, "No profile picture to delete.")
         return HttpResponseRedirect(reverse("admin:index"))
+
+
+class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = CustomUser
+    template_name = "accounts/user_confirm_delete.html"
+    success_url = reverse_lazy("index")  # 탈퇴 성공 후 리다이렉트될 URL
+
+    def test_func(self):
+        obj = self.get_object()
+        return obj == self.request.user
 
 
 class PublicProfileView(DetailView):

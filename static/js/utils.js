@@ -7,3 +7,8 @@ function toggleReplyForm(formId) {
         form.style.display = 'none';
     }
 }
+
+function navigateToDeletePage(userId) {
+    const deleteUrl = `/accounts/delete/${userId}/`;
+    window.location.href = deleteUrl;
+}

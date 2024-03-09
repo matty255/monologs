@@ -9,6 +9,8 @@
 
 <section class="bg-clear-white sticky top-0">
   <h1 class="pt-10 text-xl font-Nanum">{{ request.user.username }}'s Profile</h1>
+  <a href="#" onclick="navigateToDeletePage({{ user.id }})">회원 탈퇴</a>
+
   <form method="post" action="{% url 'profile_image_delete' %}">
     {% csrf_token %}
     <button type="submit" class="btn btn-danger">프로필 이미지 삭제</button>

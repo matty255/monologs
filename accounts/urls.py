@@ -9,6 +9,7 @@ from .views import (
     RegisterView,
     UploadAndCropView,
     ProfileImageDeleteView,
+    UserDeleteView,
 )
 
 
@@ -25,4 +26,5 @@ urlpatterns = [
     ),
     path("profile/<slug:slug>/", PublicProfileView.as_view(), name="public_profile"),
     path("profile/<int:pk>/follow/", FollowToggleView.as_view(), name="follow_toggle"),
+    path("delete/<int:pk>/", UserDeleteView.as_view(), name="user_delete"),
 ]

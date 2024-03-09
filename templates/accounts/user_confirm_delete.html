@@ -1,0 +1,15 @@
+<!-- user_confirm_delete.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div>
+    <h2>회원 탈퇴 확인</h2>
+    <p>정말로 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">탈퇴하기</button>
+        <a href="{% url 'private_profile' %}">취소</a>
+    </form>
+</div>
+{% endblock %}
