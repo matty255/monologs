@@ -137,6 +137,7 @@ gantt
 - Django-ajax_select
 - Tom Select
 - daisyUI
+- django-webp
 
 
 ## 개발 환경 설정

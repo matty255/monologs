@@ -46,12 +46,13 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-              'clear-white': 'rgba(255, 255, 255, 0.75)',
+              'clear-white': 'rgba(20, 35, 42, 0.75)',
+              'clear-window': 'rgba(83, 82, 73, 0.85)',
               dark: {
                 background: '#121212',
                 text: '#E0E0E0',
-                border: '#FFC107',
-                primary: '#FFC107',
+                border:  '#EDBB4F',
+                primary: '#EDBB4F',
               },
               light: {
                 background: '#FFFFFF',
@@ -61,7 +62,7 @@ module.exports = {
               },
               },
               backgroundImage: theme => ({
-                'custom-full-image': "url('../../../static/images/banners/background.webp')",
+                'custom-full-image': "url('../../../static/images/banners/darkmode-background.webp')",
               }),
               fontFamily: {
                 'Hippie': ['NanumHippie', 'sans-serif'],
