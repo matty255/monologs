@@ -21,9 +21,11 @@ class Post(UploadToPathMixin, models.Model):
     )
     summary = models.CharField(max_length=200, null=True, blank=True)
     content = QuillField()
-    thumbnail = models.ImageField(
-        upload_to=UploadToPathMixin.upload_to, null=True, blank=True
-    )  # 변경된 부분
+
+    def get_upload_path(self, filename):
+        return UploadToPathMixin.upload_to(self, instance=self, filename=filename)
+
+    thumbnail = models.ImageField(upload_to=get_upload_path, null=True, blank=True)
     tags = models.ManyToManyField(Tag, related_name="posts", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

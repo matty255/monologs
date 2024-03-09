@@ -14,9 +14,10 @@ from django.db.models import Count, Q
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.contrib import messages
-from .models import Like
+from .models import Like, Follow
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from .mixins import UploadToPathMixin
 
 
 class ToggleLikeView(LoginRequiredMixin, View):
@@ -129,11 +130,29 @@ class PostDetailView(DetailView):
     template_name = "blog/blog_detail.html"
 
     def get_context_data(self, **kwargs):
+
         context = super().get_context_data(**kwargs)
         post = self.get_object()
+        author = post.author  # post 모델에 author 필드가 있다고 가정
+
+        # 작성자의 프로필 사진 URL 및 상태 추가
+        context["author_profile_picture_url"] = (
+            author.profile_picture.file.url if author.profile_picture else None
+        )
+        context["author_profile_status"] = author.profile_status
+
+        # 현재 사용자가 작성자를 팔로우하고 있는지 확인
+        is_following = (
+            False  # 팔로우 모델을 기반으로 실제 팔로우 여부를 확인하는 로직 필요
+        )
+        if self.request.user.is_authenticated:
+            is_following = Follow.objects.filter(
+                follower=self.request.user, following=author
+            ).exists()
+        context["is_following"] = is_following
 
         context["meta"] = {
-            "title": "nonologs" + "|" + post.title,
+            "title": "monologs" + "|" + post.title,
             "description": post.summary if post.summary else "welcome to monologs",
             "image": (
                 self.request.build_absolute_uri(post.thumbnail.url)
