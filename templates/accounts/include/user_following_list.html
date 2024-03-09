@@ -1,4 +1,16 @@
-
-{% for following_user in following_users %}
-    <p>{{ following_user }}</p>
-{% endfor %}
+<h1>Following Users</h1>
+<ul>
+  {% for follow in following_users %}
+    <li><a href="{% url 'public_profile' follow.following.username %}">{{ follow.following.username }}</a></li>
+  {% empty %}
+    <li>You are not following any users yet</li>
+  {% endfor %}
+</ul>
+<h1>Followers</h1>
+<ul>
+  {% for follow in followers %}
+    <li><a href="{% url 'public_profile' follow.follower.username %}">{{ follow.follower.username }}</a></li>
+  {% empty %}
+    <li>You have no followers yet</li>
+  {% endfor %}
+</ul>

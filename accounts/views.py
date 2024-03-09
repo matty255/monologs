@@ -96,16 +96,21 @@ class FollowToggleView(LoginRequiredMixin, View):
 
 
 class UserFollowingListView(LoginRequiredMixin, ListView):
-    template_name = "accounts/user_following_list.html"
+    template_name = "accounts/include/user_following_list.html"
     context_object_name = "following_users"
 
     def get_queryset(self):
-        # 특정 사용자가 팔로우하는 사용자 목록을 가져옵니다.
-        user_id = self.kwargs.get("user_id")
-        user = CustomUser.objects.get(pk=user_id)
-        return Follow.objects.filter(follower=user).values_list(
-            "following__username", flat=True
-        )
+        user_info = self.kwargs.get("username")
+        user = get_object_or_404(CustomUser, username=user_info)
+        return user.following.all()
+
+
+class FollowingListView(LoginRequiredMixin, ListView):
+    template_name = "accounts/include/following_list.html"
+    context_object_name = "following_users"
+
+    def get_queryset(self):
+        return self.request.user.following.all()
 
 
 class PublicProfileView(DetailView):
@@ -120,9 +125,10 @@ class PublicProfileView(DetailView):
         user = self.get_object()
         context["following"] = user.following.all()
         context["followers"] = user.followers.all()
-        context["is_following"] = self.request.user.following.filter(
-            id=user.id
-        ).exists()
+        context["is_following"] = (
+            self.request.user.is_authenticated
+            and self.request.user.following.filter(id=user.id).exists()
+        )
         return context
 
 
@@ -235,13 +241,3 @@ class PublicProfileView(DetailView):
     context_object_name = "profile_user"
     slug_field = "username"
     slug_url_kwarg = "slug"
-
-
-class FollowingListView(LoginRequiredMixin, ListView):
-    template_name = "following_list.html"
-    context_object_name = "following_users"
-
-    def get_queryset(self):
-        return Follow.objects.filter(follower=self.request.user).values_list(
-            "following__username", flat=True
-        )

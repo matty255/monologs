@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from .mixins import UploadToPathMixin
+from django.conf import settings
 
 
 class CustomUser(AbstractUser):
@@ -17,10 +18,10 @@ class CustomUser(AbstractUser):
 
 class Follow(models.Model):
     follower = models.ForeignKey(
-        CustomUser, related_name="following", on_delete=models.CASCADE
+        settings.AUTH_USER_MODEL, related_name="following", on_delete=models.CASCADE
     )
     following = models.ForeignKey(
-        CustomUser, related_name="followers", on_delete=models.CASCADE
+        settings.AUTH_USER_MODEL, related_name="followers", on_delete=models.CASCADE
     )
 
     class Meta:

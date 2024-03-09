@@ -1,50 +1,22 @@
-<!-- templates/accounts/public_profile.html -->
-
 {% extends 'base.html' %}
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <div class="card mt-5">
-                <div class="card-header">
-                    <h2>{{ profile_user.username }}</h2>
-                    <p>{{ profile_user.profile_status }}</p>
-                    <p>{{ profile_user.profile_message }}</p>
-                </div>
-                <div class="card-body">
-                    <h3>Following</h3>
-                    <ul>
-                        {% for following_user in following %}
-                            <li>{{ following_user.username }}</li>
-                        {% empty %}
-                            <li>No following users.</li>
-                        {% endfor %}
-                    </ul>
-                    <h3>Followers</h3>
-                    <ul>
-                        {% for follower in followers %}
-                            <li>{{ follower.username }}</li>
-                        {% empty %}
-                            <li>No followers.</li>
-                        {% endfor %}
-                    </ul>
-                    {% include "accounts/include/user_following_list.html" with following_users=profile_user.username %}
+  <h1>Public Profile</h1>
+  <p>Username: {{ profile_user.username }}</p>
+  <p>Email: {{ profile_user.email }}</p>
 
-       
-                    {% if is_following %}
-                        <form action="{% url 'follow_toggle' profile_user.id %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-secondary">Unfollow</button>
-                        </form>
-                    {% else %}
-                        <form action="{% url 'follow_toggle' profile_user.id %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-primary">Follow</button>
-                        </form>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+  {% include "accounts/include/user_following_list.html" with following_users=profile_user.following.all %}
+  
+  <h1>Followers</h1>
+  <ul>
+    {% for follow in profile_user.followers.all %}
+      <li>{{ follow.follower.username }}</li>
+    {% empty %}
+      <li>This user has no followers yet</li>
+    {% endfor %}
+  </ul>
+
+  <h2>Posts</h2>
+  {% for post in posts %}
+      <p>{{ post.content }}</p>
+  {% endfor %}
 {% endblock %}
