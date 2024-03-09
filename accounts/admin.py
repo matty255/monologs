@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CustomUser, CroppedImage
+from .models import CustomUser, CroppedImage, Follow
 from django.utils.html import format_html
 
 
@@ -22,3 +22,8 @@ class CroppedImageAdmin(admin.ModelAdmin):
         return format_html("<a href='{url}'>View Image</a>", url=obj.file.url)
 
     file_link.short_description = "Image File"
+
+
+@admin.register(Follow)
+class FollowAdmin(admin.ModelAdmin):
+    search_fields = ["name"]

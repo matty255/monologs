@@ -47,24 +47,24 @@ module.exports = {
         extend: {
             colors: {
               'clear-white': 'rgba(255, 255, 255, 0.75)',
-                base: {
-                 
-                  'light-pink': '#FAF3F3',
-                  'light-primary': '#F48FB1',
-                  'light-secondary': '#A2D2FF',
-                  'light-accent': '#C8E7A8',
-                  'light-text': '#2D2D2D',
-                  'dark-background': '#2D2D2A',
-                  'dark-primary': '#CD5C5C',
-                  'dark-secondary': '#6A8D92',
-                  'dark-accent': '#88B04B',
-                  'dark-text': '#EAE0D5',
-                },
+              dark: {
+                background: '#121212',
+                text: '#E0E0E0',
+                border: '#FFC107',
+                primary: '#FFC107',
+              },
+              light: {
+                background: '#FFFFFF',
+                text: '#212121',
+                border: '#FFC107',
+                primary: '#FFC107',
+              },
               },
               backgroundImage: theme => ({
                 'custom-full-image': "url('../../../static/images/banners/background.webp')",
               }),
               fontFamily: {
+                'Hippie': ['NanumHippie', 'sans-serif'],
                 'Nanum': ['NanumSquare', 'sans-serif'],
                 'Happiness': ['HappinessSans', 'sans-serif'],
                 'WhiteTail': ['WhiteTail', 'sans-serif'],

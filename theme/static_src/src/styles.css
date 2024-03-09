@@ -23,3 +23,10 @@
     font-weight: 100 1000;
     font-stretch: 50% 200%;
   }
+
+  @font-face {
+    font-family: "NanumHippie";
+    src: url("../../fonts/nanum-hippie.ttf") format("truetype");
+    font-weight: 100 1000;
+    font-stretch: 50% 200%;
+  }

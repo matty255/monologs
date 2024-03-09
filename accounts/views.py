@@ -8,7 +8,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.views import View
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from .models import CustomUser
+from .models import CustomUser, Follow
 from django.contrib.auth.views import LoginView
 from .forms import (
     CustomLoginForm,
@@ -19,7 +19,7 @@ from .forms import (
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth import authenticate, login
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, UpdateView, ListView
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic.edit import DeleteView
@@ -74,18 +74,38 @@ class FollowToggleView(LoginRequiredMixin, View):
         if user_to_toggle == request.user:
             messages.error(request, "You cannot follow yourself.")
         else:
-            if request.user.following.filter(id=user_to_toggle.id).exists():
-                request.user.following.remove(user_to_toggle)
+            if request.user.following.filter(following=user_to_toggle).exists():
+                # Unfollow
+                follow_instance = Follow.objects.get(
+                    follower=request.user, following=user_to_toggle
+                )
+                follow_instance.delete()
                 messages.success(
                     request, f"You have unfollowed {user_to_toggle.username}."
                 )
             else:
-                request.user.following.add(user_to_toggle)
+                # Follow
+                follow_instance = Follow.objects.create(
+                    follower=request.user, following=user_to_toggle
+                )
                 messages.success(
                     request, f"You are now following {user_to_toggle.username}."
                 )
 
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+
+
+class UserFollowingListView(LoginRequiredMixin, ListView):
+    template_name = "accounts/user_following_list.html"
+    context_object_name = "following_users"
+
+    def get_queryset(self):
+        # 특정 사용자가 팔로우하는 사용자 목록을 가져옵니다.
+        user_id = self.kwargs.get("user_id")
+        user = CustomUser.objects.get(pk=user_id)
+        return Follow.objects.filter(follower=user).values_list(
+            "following__username", flat=True
+        )
 
 
 class PublicProfileView(DetailView):
@@ -215,3 +235,13 @@ class PublicProfileView(DetailView):
     context_object_name = "profile_user"
     slug_field = "username"
     slug_url_kwarg = "slug"
+
+
+class FollowingListView(LoginRequiredMixin, ListView):
+    template_name = "following_list.html"
+    context_object_name = "following_users"
+
+    def get_queryset(self):
+        return Follow.objects.filter(follower=self.request.user).values_list(
+            "following__username", flat=True
+        )

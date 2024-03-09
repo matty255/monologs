@@ -10,6 +10,7 @@ from .views import (
     UploadAndCropView,
     ProfileImageDeleteView,
     UserDeleteView,
+    UserFollowingListView,
 )
 
 
@@ -26,5 +27,10 @@ urlpatterns = [
     ),
     path("profile/<slug:slug>/", PublicProfileView.as_view(), name="public_profile"),
     path("profile/<int:pk>/follow/", FollowToggleView.as_view(), name="follow_toggle"),
+    path(
+        "follow_list/<str:username>/",
+        UserFollowingListView.as_view(),
+        name="follow_list",
+    ),
     path("delete/<int:pk>/", UserDeleteView.as_view(), name="user_delete"),
 ]

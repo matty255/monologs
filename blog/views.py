@@ -8,13 +8,14 @@ from django.views.generic import (
 )
 from django.urls import reverse_lazy
 from .models import Post, Comment, Tag, Like, Bookmark
+from accounts.models import Follow
 from .forms import PostForm, CommentForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Count, Q
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.contrib import messages
-from .models import Like, Follow
+from .models import Like
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from .mixins import UploadToPathMixin

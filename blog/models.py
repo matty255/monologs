@@ -68,15 +68,3 @@ class Bookmark(models.Model):
 
     class Meta:
         unique_together = ("user", "content_type", "object_id")
-
-
-class Follow(models.Model):
-    follower = models.ForeignKey(
-        CustomUser, related_name="following", on_delete=models.CASCADE
-    )
-    following = models.ForeignKey(
-        CustomUser, related_name="followers", on_delete=models.CASCADE
-    )
-
-    class Meta:
-        unique_together = ("follower", "following")

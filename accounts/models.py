@@ -15,6 +15,18 @@ class CustomUser(AbstractUser):
     )
 
 
+class Follow(models.Model):
+    follower = models.ForeignKey(
+        CustomUser, related_name="following", on_delete=models.CASCADE
+    )
+    following = models.ForeignKey(
+        CustomUser, related_name="followers", on_delete=models.CASCADE
+    )
+
+    class Meta:
+        unique_together = ("follower", "following")
+
+
 class CroppedImage(UploadToPathMixin, models.Model):
     original_file = models.ImageField(upload_to=UploadToPathMixin.upload_to_original)
     file = models.ImageField(upload_to=UploadToPathMixin.upload_to_cropped)
