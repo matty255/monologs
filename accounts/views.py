@@ -1,6 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from .models import CustomUser
-from django.views.generic import DetailView, TemplateView
+from django.views.generic import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from blog.models import Post, Like, Bookmark
 from django.contrib.auth import logout
@@ -18,13 +18,17 @@ from .forms import (
 )
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.views import LogoutView
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import login
 from django.views.generic import CreateView, UpdateView, ListView
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic.edit import DeleteView
-from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin
+from PIL import Image
+import io
+from django.core.files.base import ContentFile
+from datetime import datetime
+from .mixins import UploadToPathMixin
 
 
 class RegisterView(CreateView):
@@ -185,21 +189,40 @@ class UploadAndCropView(LoginRequiredMixin, View):
     login_url = reverse_lazy("login")
 
     def get(self, request, *args, **kwargs):
-
         form = self.form_class()
         return render(request, self.template_name, {"form": form})
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST, request.FILES)
         if form.is_valid():
-            if request.user.profile_picture:
-
-                request.user.profile_picture.delete()
-
-            cropped_image = form.save()
             user = request.user
+            if user.profile_picture:
+                user.profile_picture.delete()  # Delete existing picture
+
+            cropped_image = form.save(commit=False)
+            cropped_image.user = user  # Assuming the model has a user field to link to
+
+            # Convert the image to WebP
+            image_content = cropped_image.file.read()
+            image = Image.open(io.BytesIO(image_content))
+            webp_image = io.BytesIO()
+            image.save(webp_image, format="WEBP")
+            webp_image.seek(0)
+
+            # Apply custom file path based on user and date
+            webp_filename = UploadToPathMixin.upload_to_user_path(
+                cropped_image,
+                f"{user.username}_{datetime.now().strftime('%Y%m%d%H%M%S')}.webp",
+                "cropped_images",
+            )
+            cropped_image.file.save(
+                webp_filename, ContentFile(webp_image.read()), save=False
+            )
+            cropped_image.save()
+
             user.profile_picture = cropped_image
             user.save()
+
             image_url = cropped_image.file.url
             return JsonResponse(
                 {
@@ -208,6 +231,7 @@ class UploadAndCropView(LoginRequiredMixin, View):
                     "imageId": cropped_image.id,
                 }
             )
+
         return render(request, self.template_name, {"form": form})
 
 

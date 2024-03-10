@@ -4,6 +4,8 @@ from .models import Post, Comment, Tag
 from ajax_select.fields import (
     AutoCompleteSelectMultipleField,
 )
+from django.core.exceptions import ValidationError
+from PIL import Image
 
 
 class PostAdminForm(forms.ModelForm):
@@ -52,6 +54,23 @@ class PostForm(forms.ModelForm):
             tag, created = Tag.objects.get_or_create(name=name)
             tag_ids.append(tag.id)
         return tag_ids
+
+    def clean_thumbnail(self):
+        thumbnail = self.cleaned_data.get("thumbnail")
+        if thumbnail:
+            # 허용된 파일 확장자 목록
+            allowed_extensions = ["jpg", "jpeg", "png", "webp"]
+            extension = thumbnail.name.split(".")[-1].lower()
+            if extension not in allowed_extensions:
+                raise ValidationError("지원하지 않는 파일 형식입니다.")
+
+            # 파일 크기 제한 (예: 10MB)
+            if thumbnail.size > 10 * 1024 * 1024:  # 10MB
+                raise ValidationError(
+                    "파일 크기가 너무 큽니다. 10MB 이하의 파일만 업로드해주세요."
+                )
+
+        return thumbnail
 
 
 class CommentForm(forms.ModelForm):

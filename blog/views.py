@@ -19,6 +19,9 @@ from .models import Like
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from .mixins import UploadToPathMixin
+from PIL import Image
+import io
+from django.core.files.base import ContentFile
 
 
 class ToggleLikeView(LoginRequiredMixin, View):
@@ -205,6 +208,19 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
+        thumbnail = form.cleaned_data.get("thumbnail")
+        if thumbnail:  # 썸네일이 제출된 경우
+            img = Image.open(thumbnail)
+            if img.format != "WEBP":
+                output = io.BytesIO()
+                img.save(output, format="WEBP")
+                output.seek(0)
+                thumbnail_name = thumbnail.name.split(".")[0] + ".webp"
+                # 썸네일 필드를 업데이트할 Post 인스턴스를 직접 수정
+                form.instance.thumbnail.save(
+                    thumbnail_name, ContentFile(output.read()), save=False
+                )
+
         with transaction.atomic():
             self.object = form.save(commit=False)
             self.object.save()
@@ -226,6 +242,19 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
+        thumbnail = form.cleaned_data.get("thumbnail")
+        if thumbnail:  # 썸네일이 제출된 경우
+            img = Image.open(thumbnail)
+            if img.format != "WEBP":
+                output = io.BytesIO()
+                img.save(output, format="WEBP")
+                output.seek(0)
+                thumbnail_name = thumbnail.name.split(".")[0] + ".webp"
+                # 썸네일 필드를 업데이트할 Post 인스턴스를 직접 수정
+                form.instance.thumbnail.save(
+                    thumbnail_name, ContentFile(output.read()), save=False
+                )
+
         response = super().form_valid(form)
         return response
 
