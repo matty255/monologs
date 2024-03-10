@@ -130,14 +130,21 @@ gantt
 
 ## 사용된 기술
 - Django 
+- Pillow
 - Django-quill-editor
-- django-image-cropping
+- Django-image-cropping
 - Django-tailwind
 - Django_browser_reload
 - Django-ajax_select
 - Tom Select
 - daisyUI
 - django-webp
+- python-dotenv
+- google-auth 
+- google-auth-oauthlib 
+- requests 
+- google-analytics-data
+
 
 
 ## 개발 환경 설정

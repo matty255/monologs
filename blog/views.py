@@ -13,15 +13,15 @@ from .forms import PostForm, CommentForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Count, Q
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.http import HttpResponseForbidden, HttpResponseRedirect, Http404
 from django.contrib import messages
 from .models import Like
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-from .mixins import UploadToPathMixin
 from PIL import Image
 import io
 from django.core.files.base import ContentFile
+from main.mixins import Custom404Mixin
 
 
 class ToggleLikeView(LoginRequiredMixin, View):
@@ -129,26 +129,23 @@ class PostListView(ListView):
         return context
 
 
-class PostDetailView(DetailView):
+class PostDetailView(Custom404Mixin, DetailView):
     model = Post
     template_name = "blog/blog_detail.html"
+    custom_404_message = "포스트를 찾을 수 없습니다."
 
     def get_context_data(self, **kwargs):
 
         context = super().get_context_data(**kwargs)
         post = self.get_object()
-        author = post.author  # post 모델에 author 필드가 있다고 가정
+        author = post.author
 
-        # 작성자의 프로필 사진 URL 및 상태 추가
         context["author_profile_picture_url"] = (
             author.profile_picture.file.url if author.profile_picture else None
         )
         context["author_profile_status"] = author.profile_status
 
-        # 현재 사용자가 작성자를 팔로우하고 있는지 확인
-        is_following = (
-            False  # 팔로우 모델을 기반으로 실제 팔로우 여부를 확인하는 로직 필요
-        )
+        is_following = False
         if self.request.user.is_authenticated:
             is_following = Follow.objects.filter(
                 follower=self.request.user, following=author
@@ -209,14 +206,14 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.author = self.request.user
         thumbnail = form.cleaned_data.get("thumbnail")
-        if thumbnail:  # 썸네일이 제출된 경우
+        if thumbnail:
             img = Image.open(thumbnail)
             if img.format != "WEBP":
                 output = io.BytesIO()
                 img.save(output, format="WEBP")
                 output.seek(0)
                 thumbnail_name = thumbnail.name.split(".")[0] + ".webp"
-                # 썸네일 필드를 업데이트할 Post 인스턴스를 직접 수정
+
                 form.instance.thumbnail.save(
                     thumbnail_name, ContentFile(output.read()), save=False
                 )
@@ -243,14 +240,14 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         thumbnail = form.cleaned_data.get("thumbnail")
-        if thumbnail:  # 썸네일이 제출된 경우
+        if thumbnail:
             img = Image.open(thumbnail)
             if img.format != "WEBP":
                 output = io.BytesIO()
                 img.save(output, format="WEBP")
                 output.seek(0)
                 thumbnail_name = thumbnail.name.split(".")[0] + ".webp"
-                # 썸네일 필드를 업데이트할 Post 인스턴스를 직접 수정
+
                 form.instance.thumbnail.save(
                     thumbnail_name, ContentFile(output.read()), save=False
                 )

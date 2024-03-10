@@ -1,9 +1,11 @@
 <!-- blog/include/post_confirm_delete.html -->
 
 <!-- 모달 트리거 버튼 -->
+{% if request.user == post.author %}
 <button class="btn" onclick="my_modal_1.showModal()">
     Delete Post
   </button>
+{% endif %}
   
   <!-- 모달 -->
   <dialog id="my_modal_1" class="modal">
