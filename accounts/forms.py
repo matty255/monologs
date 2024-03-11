@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.core.exceptions import ValidationError
 from .models import CustomUser, CroppedImage
+from blog.models import Category
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
@@ -68,3 +69,23 @@ class ImageUploadForm(forms.Form):
                 raise ValidationError("이미지 파일을 읽는 중 오류가 발생했습니다.")
 
         return file
+
+
+class CategoryForm(forms.ModelForm):
+    parent = forms.ModelChoiceField(
+        queryset=Category.objects.none(),  # 자바스크립트로 동적으로 채워짐
+        required=False,
+        empty_label="Select Parent Category (Leave blank for root)",
+        label="Parent Category",
+    )
+
+    class Meta:
+        model = Category
+        fields = ["name", "parent"]
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
+        super(CategoryForm, self).__init__(*args, **kwargs)
+        if user is not None:
+            # 'parent' 선택을 위한 쿼리셋.
+            self.fields["parent"].queryset = Category.objects.filter(author=user)

@@ -11,6 +11,7 @@ from django.http import HttpResponseRedirect
 from .models import CustomUser, Follow
 from django.contrib.auth.views import LoginView
 from .forms import (
+    CategoryForm,
     CustomLoginForm,
     CustomUserCreationForm,
     UserProfileForm,
@@ -31,7 +32,9 @@ from datetime import datetime
 from .mixins import UploadToPathMixin
 from main.mixins import UserIsAuthorMixin
 from .mixins import LikedAndBookmarkedMixin
-from blog.models import Post, Comment
+from blog.models import Post, Comment, Category
+import json
+from django.core.cache import cache
 
 
 class RegisterView(CreateView):
@@ -272,3 +275,82 @@ class PublicProfileView(DetailView):
     context_object_name = "profile_user"
     slug_field = "username"
     slug_url_kwarg = "slug"
+
+
+class CategoryCreateView(CreateView):
+    model = Category
+    form_class = CategoryForm
+    template_name = "accounts/category_create.html"
+    success_url = reverse_lazy("category_list")
+
+    def post(self, request, *args, **kwargs):
+        tree_data = json.loads(request.POST.get("tree"))
+        username = request.POST.get("username")
+        user = CustomUser.objects.get(username=username)
+
+        created_nodes = []
+
+        for node in tree_data:
+            parent_id = node.get("parent")
+            if parent_id and parent_id != "#":
+                if parent_id.isdigit():
+                    parent_id = int(parent_id)
+                else:
+                    parent_id = None
+            else:
+                parent_id = None
+
+            if not node["id"].isdigit():
+                # 임시 id를 가진 노드의 처리
+                cat = Category.objects.create(
+                    name=node["text"],
+                    parent_id=parent_id,
+                    author=user,
+                )
+                created_nodes.append({"temp_id": node["id"], "new_id": cat.id})
+            else:
+                # 실제 id를 가진 노드의 업데이트 또는 생성
+                cat, created = Category.objects.update_or_create(
+                    id=int(node["id"]) if node["id"].isdigit() else None,
+                    defaults={
+                        "name": node["text"],
+                        "parent_id": parent_id,
+                        "author": user,
+                    },
+                )
+
+        return JsonResponse({"status": "success", "created_nodes": created_nodes})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        categories = Category.objects.with_tree_fields()
+        # jsTree 형식에 맞게 데이터를 변환합니다.
+        context["tree"] = json.dumps(
+            [
+                {
+                    "id": cat.id,
+                    "parent": "#" if cat.parent_id is None else cat.parent_id,
+                    "text": cat.name,
+                }
+                for cat in categories
+            ]
+        )
+        return context
+
+
+class UserCategoriesView(View):
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        if not user.is_authenticated:
+            return JsonResponse({"error": "User is not authenticated"}, status=401)
+
+        cache_key = f"user_{user.pk}_category"
+        categories = cache.get(cache_key)
+
+        if categories is None:
+            categories = list(
+                Category.objects.filter(author=user).values("id", "name", "parent_id")
+            )
+            cache.set(cache_key, categories, 60 * 15)  # 캐시에 15분간 저장
+
+        return JsonResponse({"categories": categories})

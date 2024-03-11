@@ -4,6 +4,8 @@ from datetime import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.models import ContentType
 from django.apps import apps
+from django.forms import ModelChoiceField
+from django.utils.html import format_html
 
 
 class UploadToPathMixin:
@@ -41,3 +43,18 @@ class BookmarkMixin:
             content_type=content_type, object_id=instance.id, user=user
         ).exists()
         return bookmarked
+
+
+class IndentMixin:
+    def get_level(self, obj):
+        # obj의 tree_depth 속성을 사용하여 노드의 깊이를 반환합니다.
+        return getattr(obj, "tree_depth", 0)
+
+    def label_from_instance(self, obj):
+        # get_level 메소드를 사용하여 들여쓰기를 적용합니다.
+        prefix = "----" * self.get_level(obj)
+        return format_html("{} {}", prefix, obj.name)
+
+
+class CustomModelChoiceField(IndentMixin, ModelChoiceField):
+    pass

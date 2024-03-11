@@ -1,11 +1,14 @@
 import json
 from django import forms
-from .models import Post, Comment, Tag
+
+from .mixins import CustomModelChoiceField
+from .models import Post, Comment, Tag, Category
 from ajax_select.fields import (
     AutoCompleteSelectMultipleField,
 )
 from django.core.exceptions import ValidationError
 from PIL import Image
+from ajax_select import make_ajax_field
 
 
 class PostAdminForm(forms.ModelForm):
@@ -15,15 +18,31 @@ class PostAdminForm(forms.ModelForm):
         help_text="태그를 선택하거나 입력하세요.",
         label="Tags",
     )
+    category = make_ajax_field(
+        Post,
+        "category",
+        "category",
+        help_text="카테고리를 선택하세요.",
+        label="Category",
+    )
 
     class Meta:
         model = Post
-        fields = ["title", "content", "summary", "thumbnail", "author", "tags"]
+        fields = [
+            "title",
+            "content",
+            "summary",
+            "thumbnail",
+            "author",
+            "tags",
+            "category",
+        ]
 
     def __init__(self, *args, **kwargs):
         super(PostAdminForm, self).__init__(*args, **kwargs)
         if self.instance.pk:
             self.fields["tags"].initial = self.instance.tags.all()
+            self.fields["category"].initial = self.instance.category
 
     def save(self, commit=True):
         instance = super(PostAdminForm, self).save(commit=False)
@@ -37,14 +56,24 @@ class PostAdminForm(forms.ModelForm):
 
 class PostForm(forms.ModelForm):
     tags = forms.CharField(widget=forms.TextInput(attrs={"class": "tagify-field"}))
+    category = CustomModelChoiceField(
+        queryset=Category.objects.none(),  # 초기에는 비어 있는 쿼리셋을 설정합니다.
+        empty_label="Select Category",
+    )
 
     class Meta:
         model = Post
-        fields = ["title", "summary", "content", "tags", "thumbnail"]
+        fields = ["title", "summary", "content", "tags", "thumbnail", "category"]
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
         super(PostForm, self).__init__(*args, **kwargs)
         self.fields["content"].widget.attrs.update({"class": "quill-field"})
+        if user:
+            # 사용자에 따라 카테고리 쿼리셋을 필터링하고 들여쓰기를 적용합니다.
+            self.fields["category"].queryset = (
+                Category.objects.with_tree_fields().filter(author=user)
+            )
 
     def clean_tags(self):
         tags_str = self.cleaned_data["tags"]

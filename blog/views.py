@@ -195,6 +195,11 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     template_name = "blog/post_create.html"
     success_url = reverse_lazy("blog_list")
 
+    def get_form_kwargs(self):
+        kwargs = super(PostCreateView, self).get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["tags_list"] = list(Tag.objects.all().values_list("name", flat=True))

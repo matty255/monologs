@@ -144,6 +144,7 @@ gantt
 - google-auth-oauthlib 
 - requests 
 - google-analytics-data
+- django-tree-queries
 
 
 

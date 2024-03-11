@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import (
+    CategoryCreateView,
     FollowToggleView,
     PrivateProfileView,
     PublicProfileView,
@@ -11,6 +12,7 @@ from .views import (
     ProfileImageDeleteView,
     UserDeleteView,
     UserFollowingListView,
+    UserCategoriesView,
 )
 
 
@@ -33,4 +35,6 @@ urlpatterns = [
         name="follow_list",
     ),
     path("delete/<int:pk>/", UserDeleteView.as_view(), name="user_delete"),
+    path("category/create/", CategoryCreateView.as_view(), name="category_create"),
+    path("api/user-categories/", UserCategoriesView.as_view(), name="user-categories"),
 ]
