@@ -3,6 +3,7 @@
       <p>{{ comment.author }}: {{ comment.content }}</p>
       {% if user.is_authenticated %}
         <!-- 좋아요 버튼 -->
+
         <form method="post" action="{% url 'toggle_like' pk=comment.pk %}">
           {% csrf_token %}
           <input type="hidden" name="content_type" value="comment">
@@ -22,7 +23,16 @@
             {% if comment.bookmarked %}Bookmarked{% else %}Bookmark{% endif %}
           </button>
         </form>
+  
       {% endif %}
+
+
+      {% if user.is_authenticated %}
+      <button onclick="toggleReplyForm('reply-form-{{ comment.id }}');">Reply</button>
+      <div id="reply-form-{{ comment.id }}" style="display:none;">
+        {% include 'blog/include/reply_form.html' with parent_id=comment.id form=comment_form %}
+      </div>
+    {% endif %}
 
       {% if not comment.parent %}
 
@@ -62,8 +72,11 @@
       {% endfor %}
     </div>
 
+    <div class="flex">
+
     {% if request.user == comment.author %}
     {% include 'blog/include/comment_update_form.html' with comment=comment form=comment_form %}
     {% include 'blog/include/comment_confirm_delete.html' with comment=comment %}
   {% endif %}
+  </div>
 {% endfor %}

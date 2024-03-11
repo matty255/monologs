@@ -4,6 +4,14 @@ from django.contrib.contenttypes.models import ContentType
 from django_quill.fields import QuillField
 from accounts.models import CustomUser
 from .mixins import UploadToPathMixin
+from tree_queries.models import TreeNode
+
+
+class Category(TreeNode):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
 
 
 class Tag(models.Model):
@@ -29,6 +37,9 @@ class Post(UploadToPathMixin, models.Model):
     tags = models.ManyToManyField(Tag, related_name="posts", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    category = models.ForeignKey(
+        Category, on_delete=models.SET_NULL, null=True, related_name="posts"
+    )
 
     def __str__(self):
         return self.title

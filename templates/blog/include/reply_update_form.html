@@ -1,7 +1,7 @@
 <!-- reply_update_form.html -->
 
 <!-- 대댓글 수정 모달 트리거 버튼 -->
-<button class="btn" onclick="document.getElementById('reply-edit-modal-{{ reply.id }}').showModal()">Edit</button>
+<button class="btn btn-sm" onclick="document.getElementById('reply-edit-modal-{{ reply.id }}').showModal()">Edit</button>
 
 <!-- 대댓글 수정 모달 -->
 <dialog id="reply-edit-modal-{{ reply.id }}" class="modal">
@@ -23,8 +23,8 @@
 
         <!-- 제출 버튼 -->
         <div class="modal-action">
-            <button type="submit" class="btn btn-primary">Update reply</button>
-            <button class="btn" type="button" onclick="document.getElementById('reply-edit-modal-{{ reply.id }}').close()">Cancel</button>
+            <button type="submit" class="btn btn-sm btn btn-sm-primary">Update reply</button>
+            <button class="btn btn-sm" type="button" onclick="document.getElementById('reply-edit-modal-{{ reply.id }}').close()">Cancel</button>
         </div>
     </form>
     <!-- 대댓글 수정 폼 끝 -->

@@ -1,5 +1,5 @@
 <!-- 업데이트 모달 트리거 버튼 -->
-<button class="btn" onclick="document.getElementById('edit-modal-{{ comment.id }}').showModal()">Edit</button>
+<button class="btn btn-sm" onclick="document.getElementById('edit-modal-{{ comment.id }}').showModal()">Edit</button>
 
 <!-- 업데이트 모달 -->
 <dialog id="edit-modal-{{ comment.id }}" class="modal">
@@ -22,8 +22,8 @@
 
         <!-- 제출 버튼 -->
         <div class="modal-action">
-            <button type="submit" class="btn btn-primary">Update comment</button>
-            <button class="btn" type="button" onclick="document.getElementById('edit-modal-{{ comment.id }}').close()">Cancel</button>
+            <button type="submit" class="btn btn-sm btn btn-sm-primary">Update comment</button>
+            <button class="btn btn-sm" type="button" onclick="document.getElementById('edit-modal-{{ comment.id }}').close()">Cancel</button>
         </div>
     </form>
     <!-- 업데이트 폼 끝 -->
