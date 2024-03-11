@@ -2,7 +2,7 @@
 
 <!-- 모달 트리거 버튼 -->
 {% if request.user == post.author %}
-<button class="btn btn-sm" onclick="my_modal_1.showModal()">
+<button class="btn" onclick="my_modal_1.showModal()">
     Delete Post
   </button>
 {% endif %}
@@ -14,7 +14,7 @@
         <div class="modal-header">
           <h5>Delete Post</h5>
           <form method="dialog">
-            <button class="btn btn-sm btn btn-sm-sm btn btn-sm-circle btn btn-sm-ghost absolute right-2 top-2">✕</button>
+            <button class="btn btn-circle btn-ghost absolute right-2 top-2">✕</button>
           </form>
         </div>
         <form method="post" action="{% url 'post_delete' post.pk %}">
@@ -24,7 +24,7 @@
           </div>
           <div class="modal-footer">
             <label class="modal-backdrop" for="my_modal_7">Close</label>
-            <button type="submit" class="btn btn-sm btn btn-sm-danger">Delete</button>
+            <button type="submit" class="btn btn-danger">Delete</button>
           </div>
         </form>
       </div>

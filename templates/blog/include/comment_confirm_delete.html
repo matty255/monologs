@@ -1,5 +1,5 @@
 <!-- Delete Comment Modal Trigger Button -->
-<button class="btn btn-sm btn btn-sm-error" onclick="document.getElementById('delete-modal-{{ comment.id }}').showModal()">Delete</button>
+<button class="btn btn-error" onclick="document.getElementById('delete-modal-{{ comment.id }}').showModal()">Delete</button>
 
 <!-- Delete Comment Modal -->
 <dialog id="delete-modal-{{ comment.id }}" class="modal">
@@ -9,8 +9,8 @@
     <div class="modal-action">
       <form method="post" action="{% url 'comment_delete' comment.id %}">
         {% csrf_token %}
-        <button type="submit" class="btn btn-sm btn btn-sm-error">Yes, delete</button>
-        <button type="button" class="btn btn-sm" onclick="document.getElementById('delete-modal-{{ comment.id }}').close()">Cancel</button>
+        <button type="submit" class="btn btn-error">Yes, delete</button>
+        <button type="button" class="btn" onclick="document.getElementById('delete-modal-{{ comment.id }}').close()">Cancel</button>
       </form>
     </div>
   </div>

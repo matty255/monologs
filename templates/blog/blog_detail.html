@@ -51,12 +51,12 @@
     {% if not is_following %}
         <form action="{% url 'follow_toggle' post.author.id %}" method="post">
             {% csrf_token %}
-            <button type="submit" class="btn btn-sm btn btn-sm-primary">Follow</button>
+            <button type="submit" class="btn btn-primary">Follow</button>
         </form>
     {% else %}
         <form action="{% url 'follow_toggle' post.author.id %}" method="post">
             {% csrf_token %}
-            <button type="submit" class="btn btn-sm btn btn-sm-secondary">Unfollow</button>
+            <button type="submit" class="btn btn-secondary">Unfollow</button>
         </form>
     {% endif %}
 {% endif %}

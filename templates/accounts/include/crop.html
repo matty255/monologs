@@ -16,7 +16,7 @@
   </style>
 
 <div class="container mx-auto mt-3">
-  <button id="upload-btn btn-sm" type="button" class="btn btn-sm btn btn-sm-primary">Upload Image</button>
+  <button id="upload-btn" type="button" class="btn btn-primary">Upload Image</button>
 
 
   <input type="file" id="file-input" class="hidden" accept="image/*">
@@ -31,7 +31,7 @@
             {% csrf_token %}
             <!-- Any other inputs you need to include, like the image data -->
             <input type="hidden" id="image-data" name="image_data">
-            <button type="submit" class="btn btn-sm btn btn-sm-primary">Confirm</button>
+            <button type="submit" class="btn btn-primary">Confirm</button>
         </form>
     </div>
     
