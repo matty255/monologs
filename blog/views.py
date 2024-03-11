@@ -15,7 +15,6 @@ from django.db.models import Count, Q
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.contrib import messages
-from .models import Like
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from PIL import Image
@@ -23,6 +22,7 @@ import io
 from django.core.files.base import ContentFile
 from main.mixins import Custom404Mixin, UserIsAuthorMixin
 from django.http import Http404
+from .mixins import LikeMixin, BookmarkMixin
 
 
 class ToggleLikeView(LoginRequiredMixin, View):
@@ -130,29 +130,33 @@ class PostListView(Custom404Mixin, ListView):
         return context
 
 
-class PostDetailView(Custom404Mixin, DetailView):
+# PostDetailView 정의
+class PostDetailView(Custom404Mixin, LikeMixin, BookmarkMixin, DetailView):
     model = Post
     template_name = "blog/blog_detail.html"
     custom_404_message = "포스트를 찾을 수 없습니다."
 
     def get_context_data(self, **kwargs):
-
         context = super().get_context_data(**kwargs)
         post = self.get_object()
-        author = post.author
+        user = self.request.user
 
+        # 포스트의 저자 정보
         context["author_profile_picture_url"] = (
-            author.profile_picture.file.url if author.profile_picture else None
+            post.author.profile_picture.file.url
+            if post.author.profile_picture
+            else None
         )
-        context["author_profile_status"] = author.profile_status
+        context["author_profile_status"] = post.author.profile_status
 
-        is_following = False
-        if self.request.user.is_authenticated:
-            is_following = Follow.objects.filter(
-                follower=self.request.user, following=author
+        # 현재 사용자가 포스트의 저자를 팔로우하고 있는지 여부
+        context["is_following"] = False
+        if user.is_authenticated:
+            context["is_following"] = Follow.objects.filter(
+                follower=user, following=post.author
             ).exists()
-        context["is_following"] = is_following
 
+        # 메타 정보 설정
         context["meta"] = {
             "title": "monologs" + "|" + post.title,
             "description": post.summary if post.summary else "welcome to monologs",
@@ -163,27 +167,19 @@ class PostDetailView(Custom404Mixin, DetailView):
             ),
         }
 
-        if self.request.user.is_authenticated:
-            content_type = ContentType.objects.get_for_model(Post)
-            user = self.request.user
+        context["liked"] = self.get_like_status(user, post)
+        context["bookmarked"] = self.get_bookmark_status(user, post)
 
-            liked = Like.objects.filter(
-                content_type=content_type, object_id=post.id, user=user
-            ).exists()
-            context["liked"] = liked
+        context["like_count"] = Like.objects.filter(
+            content_type=ContentType.objects.get_for_model(Post), object_id=post.id
+        ).count()
 
-            bookmarked = Bookmark.objects.filter(
-                content_type=content_type, object_id=post.id, user=user
-            ).exists()
-            context["bookmarked"] = bookmarked
-
-            like_count = Like.objects.filter(
-                content_type=content_type, object_id=post.id
-            ).count()
-            context["like_count"] = like_count
-
-        comments = post.comments.filter(parent__isnull=True)
+        comments = post.comments.filter(parent__isnull=True).prefetch_related("replies")
         for comment in comments:
+
+            comment.liked = self.get_like_status(user, comment)
+            comment.bookmarked = self.get_bookmark_status(user, comment)
+
             comment.replies_list = comment.replies.all()
 
         context["tags"] = post.tags.all()

@@ -46,19 +46,36 @@
     {% include "accounts/include/crop.html" %}
         
 </div>
-  <h2>Liked Posts</h2>
-  {% for post in liked_posts %}
-    <p>
-      <a href="{% url 'blog_detail' post.pk %}">{{ post.title }}</a>
-    </p>
-  {% endfor %}
+<h2>Liked Posts</h2>
+{% for post in liked_posts %}
+  <p>
+    <a href="{% url 'blog_detail' post.pk %}">{{ post.title }}</a>
+  </p>
+{% endfor %}
 
-  <h2>Bookmarked Posts</h2>
-  {% for post in bookmarked_posts %}
-    <p>
-      <a href="{% url 'blog_detail' post.pk %}">{{ post.title }}</a>
-    </p>
-  {% endfor %}
+<h2>Bookmarked Posts</h2>
+{% for post in bookmarked_posts %}
+  <p>
+    <a href="{% url 'blog_detail' post.pk %}">{{ post.title }}</a>
+  </p>
+{% endfor %}
+
+<h2>Liked Comments</h2>
+{% for comment in liked_comments %}
+  <p>
+    Comment by {{ comment.author.username }}: "{{ comment.content }}"
+    <a href="{% url 'blog_detail' comment.post.pk %}">View Post</a>
+  </p>
+{% endfor %}
+
+<h2>Bookmarked Comments</h2>
+{% for comment in bookmarked_comments %}
+  <p>
+    Comment by {{ comment.author.username }}: "{{ comment.content }}"
+    <a href="{% url 'blog_detail' comment.post.pk %}">View Post</a>
+  </p>
+{% endfor %}
+
   </section>
 
 

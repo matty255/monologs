@@ -30,6 +30,8 @@ from django.core.files.base import ContentFile
 from datetime import datetime
 from .mixins import UploadToPathMixin
 from main.mixins import UserIsAuthorMixin
+from .mixins import LikedAndBookmarkedMixin
+from blog.models import Post, Comment
 
 
 class RegisterView(CreateView):
@@ -147,7 +149,7 @@ class ProfileImageDeleteView(LoginRequiredMixin, View):
         return redirect("private_profile")
 
 
-class PrivateProfileView(LoginRequiredMixin, UpdateView):
+class PrivateProfileView(LoginRequiredMixin, UpdateView, LikedAndBookmarkedMixin):
     model = CustomUser
     form_class = UserProfileForm
     second_form_class = ImageUploadForm
@@ -159,10 +161,17 @@ class PrivateProfileView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        # 믹스인을 사용하여 좋아요 및 북마크한 Post와 Comment 정보를 가져옴
+        liked_and_bookmarked_context = self.get_liked_and_bookmarked_objects(
+            user, [Post, Comment]
+        )
+        context.update(liked_and_bookmarked_context)
+
         if "image_form" not in context:
-            context["image_form"] = (
-                self.second_form_class()
-            )  # 이미지 업로드 폼을 컨텍스트에 추가
+            context["image_form"] = self.second_form_class()
+
         return context
 
     def post(self, request, *args, **kwargs):
@@ -171,7 +180,6 @@ class PrivateProfileView(LoginRequiredMixin, UpdateView):
         image_form = self.second_form_class(request.POST, request.FILES)
 
         if form.is_valid() and image_form.is_valid():
-
             cropped_image = image_form.save()
             user = request.user
             if user.profile_picture:
