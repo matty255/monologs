@@ -13,7 +13,7 @@ from .forms import PostForm, CommentForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Count, Q
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponseForbidden, HttpResponseRedirect, Http404
+from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.contrib import messages
 from .models import Like
 from django.db import transaction
@@ -21,7 +21,8 @@ from django.shortcuts import get_object_or_404
 from PIL import Image
 import io
 from django.core.files.base import ContentFile
-from main.mixins import Custom404Mixin
+from main.mixins import Custom404Mixin, UserIsAuthorMixin
+from django.http import Http404
 
 
 class ToggleLikeView(LoginRequiredMixin, View):
@@ -73,7 +74,7 @@ class ToggleBookmarkView(View):
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
 
 
-class SearchView(ListView):
+class SearchView(Custom404Mixin, ListView):
     model = Post
     template_name = "blog/search_results.html"
     context_object_name = "posts"
@@ -115,7 +116,7 @@ class SearchView(ListView):
         return object_list
 
 
-class PostListView(ListView):
+class PostListView(Custom404Mixin, ListView):
     model = Post
     template_name = "blog/blog_list.html"
     context_object_name = "posts"
@@ -225,7 +226,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class PostUpdateView(LoginRequiredMixin, UpdateView):
+class PostUpdateView(UserIsAuthorMixin, LoginRequiredMixin, UpdateView):
     model = Post
     form_class = PostForm
     template_name = "blog/post_update.html"
@@ -256,7 +257,7 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
         return response
 
 
-class PostDeleteView(DeleteView):
+class PostDeleteView(UserIsAuthorMixin, LoginRequiredMixin, DeleteView):
     model = Post
     template_name = "blog/include/post_confirm_delete.html"
     success_url = reverse_lazy("blog_list")
@@ -295,26 +296,41 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class CommentUpdateView(
+    UserIsAuthorMixin, LoginRequiredMixin, UserPassesTestMixin, UpdateView
+):
     model = Comment
     form_class = CommentForm
-    template_name = "blog/include/comment_form.html"
+    template_name = "blog/include/comment_update_form.html"
 
     def get_success_url(self):
         return reverse_lazy("blog_detail", kwargs={"pk": self.object.post.pk})
 
-    def test_func(self):
-        comment = self.get_object()
-        return self.request.user == comment.author
+    def get_object(self, queryset=None):
+        comment = super().get_object(queryset)
+        if comment.post is None or comment.author is None:
+            raise Http404("댓글이 삭제되었거나 유효하지 않습니다.")
+        return comment
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        comment = get_object_or_404(Comment, pk=self.kwargs.get("pk"))
+        context["comment_pk"] = comment.parent.id if comment.parent else comment.id
+        context["comment"] = comment
+        return context
 
 
-class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class CommentDeleteView(
+    UserIsAuthorMixin, LoginRequiredMixin, UserPassesTestMixin, DeleteView
+):
     model = Comment
     template_name = "blog/include/comment_confirm_delete.html"
 
     def get_success_url(self):
         return reverse_lazy("blog_detail", kwargs={"pk": self.object.post.pk})
 
-    def test_func(self):
-        comment = self.get_object()
-        return self.request.user == comment.author
+    def get_object(self, queryset=None):
+        comment = super().get_object(queryset)
+        if comment.post is None or comment.author is None:
+            raise Http404("댓글이 삭제되었거나 유효하지 않습니다.")
+        return comment

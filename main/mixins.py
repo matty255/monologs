@@ -1,5 +1,12 @@
 from django.http import Http404
 from django.shortcuts import render
+from django.contrib.auth.mixins import UserPassesTestMixin
+
+
+class UserIsAuthorMixin(UserPassesTestMixin):
+    def test_func(self):
+        obj = self.get_object()
+        return obj.author == self.request.user
 
 
 class Custom404Mixin:

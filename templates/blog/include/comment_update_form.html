@@ -1,0 +1,31 @@
+<!-- 업데이트 모달 트리거 버튼 -->
+<button class="btn" onclick="document.getElementById('edit-modal-{{ comment.id }}').showModal()">Edit</button>
+
+<!-- 업데이트 모달 -->
+<dialog id="edit-modal-{{ comment.id }}" class="modal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">Edit Comment</h3>
+    <!-- 업데이트 폼 시작 -->
+    <form method="post" class="w-full max-w-xl" 
+          action="{% if comment.parent %}{% url 'comment_update' pk=comment.parent.id %}{% else %}{% url 'comment_update' pk=comment.id %}{% endif %}">
+        {% csrf_token %}
+        
+        <!-- 댓글 내용 입력 필드 -->
+        <div class="form-field-wrapper">
+            {% if form.content.errors %}
+                <p class="form-error">
+                    {{ form.content.errors.as_text }}
+                </p>
+            {% endif %}
+            <textarea name="content" id="id_content_{{ comment.id }}" placeholder="Edit your comment..." required>{{ form.content.value|default_if_none:comment.content }}</textarea>
+        </div>
+
+        <!-- 제출 버튼 -->
+        <div class="modal-action">
+            <button type="submit" class="btn btn-primary">Update comment</button>
+            <button class="btn" type="button" onclick="document.getElementById('edit-modal-{{ comment.id }}').close()">Cancel</button>
+        </div>
+    </form>
+    <!-- 업데이트 폼 끝 -->
+  </div>
+</dialog>

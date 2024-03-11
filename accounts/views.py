@@ -29,6 +29,7 @@ import io
 from django.core.files.base import ContentFile
 from datetime import datetime
 from .mixins import UploadToPathMixin
+from main.mixins import UserIsAuthorMixin
 
 
 class RegisterView(CreateView):
@@ -249,14 +250,12 @@ class DeleteProfilePictureView(LoginRequiredMixin, View):
         return HttpResponseRedirect(reverse("admin:index"))
 
 
-class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class UserDeleteView(
+    LoginRequiredMixin, UserIsAuthorMixin, UserPassesTestMixin, DeleteView
+):
     model = CustomUser
     template_name = "accounts/user_confirm_delete.html"
     success_url = reverse_lazy("index")  # 탈퇴 성공 후 리다이렉트될 URL
-
-    def test_func(self):
-        obj = self.get_object()
-        return obj == self.request.user
 
 
 class PublicProfileView(DetailView):
