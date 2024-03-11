@@ -15,8 +15,26 @@
     {% endfor %}
   </ul>
 
+  <h2>Categories</h2>
+  <ul>
+    {% for category in categories %}
+      <li class="{% if category.parent_id %}pl-3{% endif %}">
+        <a href="{% url 'public-profile-category' slug=profile_user.username category_id=category.id %}">
+          {{ category.name }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+
   <h2>Posts</h2>
-  {% for post in posts %}
-      <p>{{ post.content }}</p>
-  {% endfor %}
+  {% if posts %}
+    {% for post in posts %}
+      <div>
+        <h3>{{ post.title }}</h3> <!-- 가정: Post 모델에 title 필드가 있다고 가정합니다. -->
+        <p>{{ post.content }}</p>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>No posts found for this category.</p>
+  {% endif %}
 {% endblock %}

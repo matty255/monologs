@@ -2,7 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from .models import CustomUser
 from django.views.generic import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from blog.models import Post, Like, Bookmark
+from blog.models import Post, Like, Comment, Category
 from django.contrib.auth import logout
 from django.shortcuts import redirect, get_object_or_404
 from django.views import View
@@ -32,7 +32,7 @@ from datetime import datetime
 from .mixins import UploadToPathMixin
 from main.mixins import UserIsAuthorMixin
 from .mixins import LikedAndBookmarkedMixin
-from blog.models import Post, Comment, Category
+
 import json
 from django.core.cache import cache
 
@@ -130,9 +130,51 @@ class PublicProfileView(DetailView):
     slug_field = "username"
     slug_url_kwarg = "slug"
 
+    def get_profile_image_url(self, user):
+        """
+        사용자의 프로필 이미지 URL을 반환합니다.
+        프로필 이미지가 없는 경우, 기본 이미지 URL을 반환합니다.
+        """
+        if user.profile_picture:
+            return self.request.build_absolute_uri(user.profile_picture.image.url)
+        else:
+            return None
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.get_object()
+        category_id = self.kwargs.get("category_id")
+        all_categories = Category.objects.filter(author=user).values(
+            "id", "name", "parent_id"
+        )
+
+        if category_id:
+            selected_category = get_object_or_404(Category, pk=category_id, author=user)
+            category_ids = [selected_category.id] + list(
+                selected_category.descendants(include_self=False).values_list(
+                    "id", flat=True
+                )
+            )
+            posts = Post.objects.filter(category_id__in=category_ids, author=user)
+
+            # 카테고리가 선택된 경우, 메타 정보 설정
+            context["meta"] = {
+                "title": f"monologs | {selected_category.name}",
+                "description": f"{user.username} 닙의 category:  {selected_category.name}",
+                "image": self.get_profile_image_url(user),
+            }
+        else:
+            posts = Post.objects.filter(author=user)
+            # 기본 메타 정보 설정
+            context["meta"] = {
+                "title": "monologs | Profile",
+                "description": f"{user.username} 닙의 글을 monologs에서 더 찾아보세요.",
+                "image": self.get_profile_image_url(user),
+            }
+
+        context["categories"] = all_categories
+        context["posts"] = posts
+        context["selected_category_id"] = category_id
         context["following"] = user.following.all()
         context["followers"] = user.followers.all()
         context["is_following"] = (
@@ -267,14 +309,6 @@ class UserDeleteView(
     model = CustomUser
     template_name = "accounts/user_confirm_delete.html"
     success_url = reverse_lazy("index")  # 탈퇴 성공 후 리다이렉트될 URL
-
-
-class PublicProfileView(DetailView):
-    model = CustomUser
-    template_name = "accounts/public_profile.html"
-    context_object_name = "profile_user"
-    slug_field = "username"
-    slug_url_kwarg = "slug"
 
 
 class CategoryCreateView(CreateView):

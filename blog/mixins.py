@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.apps import apps
 from django.forms import ModelChoiceField
 from django.utils.html import format_html
+from django.shortcuts import get_object_or_404
 
 
 class UploadToPathMixin:
@@ -43,6 +44,15 @@ class BookmarkMixin:
             content_type=content_type, object_id=instance.id, user=user
         ).exists()
         return bookmarked
+
+
+# class TreeViewMixin:
+
+#     def get_descendants(self, user, category_id, include_self=True):
+
+#         node = get_object_or_404(Category, pk=category_id, author=user)
+#         descendants = node.descendants(include_self=include_self).filter(author=user)
+#         return descendants
 
 
 class IndentMixin:

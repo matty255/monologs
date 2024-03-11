@@ -28,6 +28,11 @@ urlpatterns = [
         name="profile_image_delete",
     ),
     path("profile/<slug:slug>/", PublicProfileView.as_view(), name="public_profile"),
+    path(
+        "profile/<slug:slug>/category/<int:category_id>/",
+        PublicProfileView.as_view(),
+        name="public-profile-category",
+    ),
     path("profile/<int:pk>/follow/", FollowToggleView.as_view(), name="follow_toggle"),
     path(
         "follow_list/<str:username>/",
