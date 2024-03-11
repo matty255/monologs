@@ -52,8 +52,18 @@
                 {% if reply.bookmarked %}Bookmarked{% else %}Bookmark{% endif %}
               </button>
             </form>
+
+            {% if request.user == reply.author %}
+            {% include 'blog/include/reply_update_form.html' with comment=reply form=comment_form %}
+            {% include 'blog/include/comment_confirm_delete.html' with comment=reply %}
+          {% endif %}
           {% endif %}
         </div>
       {% endfor %}
     </div>
+
+    {% if request.user == comment.author %}
+    {% include 'blog/include/comment_update_form.html' with comment=comment form=comment_form %}
+    {% include 'blog/include/comment_confirm_delete.html' with comment=comment %}
+  {% endif %}
 {% endfor %}
