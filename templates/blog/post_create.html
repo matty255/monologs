@@ -1,5 +1,8 @@
+
+
 {% extends "base.html" %}
 
+{% load static %}
 
 {% block content %}
 
@@ -52,8 +55,19 @@
   </form>
 
   <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js"></script>
+  <script src="{% static 'js/easyQuill.js' %}"></script>
   <script>
-    console.log({{tags_list | safe}})
+    const quillInstance = djq['id_content'].quill;
+
+    const easyQuill = new EasyQuill(quillInstance);
+
+    
+
+    console.log(easyQuill.setContents([
+    { insert: 'Hello ' },
+    { insert: 'World!', attributes: { bold: true } }
+  ]))
+
     // Ensure you have a text input field with the class 'tagify-field' for tags.
     var inputElm = document.querySelector('.tagify-field');
     var tagsList = {{tags_list | safe}}
