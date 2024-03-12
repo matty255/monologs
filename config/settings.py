@@ -14,10 +14,14 @@ from pathlib import Path
 from shutil import which
 from django.core.exceptions import ImproperlyConfigured
 import json
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+env = environ.Env()
+
+environ.Env.read_env()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -38,13 +42,14 @@ def get_secret(setting, secrets=secrets):
         raise ImproperlyConfigured(error_msg)
 
 
-SECRET_KEY = get_secret("SECRET_KEY")
+SECRET_KEY = env("SECRET_KEY", default="")
+
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = int(env("DEBUG", default=1))
 
 ALLOWED_HOSTS = ["*"]
 
