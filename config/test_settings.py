@@ -37,19 +37,6 @@ else:
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY_FILE = BASE_DIR / "secrets.json"
-
-with open(SECRET_KEY_FILE) as f:
-    secrets = json.loads(f.read())
-
-
-def get_secret(setting, secrets=secrets):
-    try:
-        return secrets[setting]
-    except KeyError:
-        error_msg = "Set the {} environment variable".format(setting)
-        raise ImproperlyConfigured(error_msg)
-
 
 SECRET_KEY = env("SECRET_KEY", default="")
 
