@@ -20,15 +20,15 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* /usr/share/doc /usr/share/man \
     && apt-get clean
 
-# 애플리케이션 파일 복사
-COPY . .
+# AWS CLI 및 Gunicorn 설치
+RUN pip install --no-cache-dir awscli gunicorn
 
-# Python 의존성 설치
-COPY requirements.txt .
+# 애플리케이션 파일 및 의존성 복사 및 설치
+COPY . .
 RUN pip install --upgrade pip \
     && pip install -r requirements.txt
 
-# Django Tailwind 및 정적 파일 설정
+# Django Tailwind 설정 및 정적 파일 컴파일
 RUN python manage.py tailwind install --no-input \
     && python manage.py tailwind build --no-input \
     && python manage.py collectstatic --no-input
@@ -37,5 +37,9 @@ RUN python manage.py tailwind install --no-input \
 COPY static/custom_django_quill/django_quill.js /usr/local/lib/python3.12/site-packages/django_quill/static/django_quill/
 COPY static/custom_django_quill/widget.html /usr/local/lib/python3.12/site-packages/django_quill/templates/django_quill/
 
-# 서버 실행
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# COPY the launch.sh script into the image and set execute permissions
+COPY launch.sh /app/
+RUN chmod +x /app/launch.sh
+
+# Set the CMD to run the launch script
+CMD ["/app/launch.sh"]
