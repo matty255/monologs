@@ -1,0 +1,29 @@
+version: '3.7'
+
+services:
+  web:
+    build: .
+    env_file:
+      - .env
+    command: >
+      sh -c "python manage.py collectstatic --no-input && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+      - static_volume:/app/static
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    depends_on:
+      - tailwind
+
+  tailwind:
+    build: .
+    command: python manage.py tailwind start
+    volumes:
+      - .:/app
+      - static_volume:/app/static
+    tty: true
+    restart: unless-stopped
+
+volumes:
+  static_volume:

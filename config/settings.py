@@ -23,6 +23,15 @@ env = environ.Env()
 
 environ.Env.read_env()
 
+ENV = env.str("ENV", "DEVELOPMENT")
+
+# SECURITY WARNING: don't run with debug turned on in production!
+
+if ENV == "PRODUCTION":
+    DEBUG = env.bool("DEBUG", default=False)
+else:
+    DEBUG = env.bool("DEBUG", default=True)
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -47,9 +56,6 @@ SECRET_KEY = env("SECRET_KEY", default="")
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(env("DEBUG", default=1))
 
 ALLOWED_HOSTS = ["*"]
 
