@@ -101,3 +101,6 @@ case $command in
     "collectstatic") collectstatic ;;
     *) echo "Unknown command" ;;
 esac
+
+
+# docker-compose -f docker-compose.yml up -d --build
