@@ -46,7 +46,12 @@ class UserProfileForm(forms.ModelForm):
         fields = []
 
 
-class ImageUploadForm(forms.Form):
+class ImageUploadForm(forms.ModelForm):
+
+    class Meta:
+        model = CroppedImage
+        fields = ("file",)
+
     # 여기서 'file'은 사용자로부터 이미지를 받는 필드의 이름입니다.
     file = forms.ImageField()
 
