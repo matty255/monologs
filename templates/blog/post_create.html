@@ -1,151 +1,155 @@
-
-
 {% extends "base.html" %}
 
 {% load static %}
 
 {% block content %}
 
+  <h2 class="a11y">create</h2>
 
+  <form method="post" id="post-form" enctype="multipart/form-data">
+    {% csrf_token %}
 
-    <h2 class="a11y">create</h2>
+    {{ form.media }}
 
-    <form method="post" id="post-form" enctype="multipart/form-data">
-      {% csrf_token %}
-      
-      {{ form.media }}
-      
-      <div class="form-field-wrapper">
-          {{ form.title.errors }}
-          <label for="{{ form.title.id_for_label }}">Title:</label>
-          {{ form.title }}
-      </div>
-
-      <div class="form-field-wrapper">
-        {{ form.category.errors }}
-        <label for="{{ form.category.id_for_label }}">category:</label>
-        {{ form.category }}
+    <div class="form-field-wrapper">
+      {{ form.title.errors }}
+      <label for="{{ form.title.id_for_label }}">Title:</label>
+      {{ form.title }}
     </div>
-      
-      <div class="form-field-wrapper">
-          {{ form.summary.errors }}
-          <label for="{{ form.summary.id_for_label }}">Summary:</label>
-          {{ form.summary }}
-      </div>
-      
-      <div class="form-field-wrapper">
-          {{ form.content.errors }}
-          <label for="{{ form.content.id_for_label }}">Content:</label>
-          {{ form.content }}
-      </div>
-      
-      <div class="form-field-wrapper">
-          {{ form.thumbnail.errors }}
-          <label for="{{ form.thumbnail.id_for_label }}">Thumbnail:</label>
-          {{ form.thumbnail }}
-      </div>
 
-   
-          {{ form.tags }} 
-   
-      
-      <!-- 여기에 thumbnail과 tags 필드를 추가하시면 됩니다 -->
-  
-      <button type="submit">Submit</button>
+    <div class="form-field-wrapper">
+      {{ form.category.errors }}
+      <label for="{{ form.category.id_for_label }}">category:</label>
+      {{ form.category }}
+    </div>
+
+    <div class="form-field-wrapper">
+      {{ form.summary.errors }}
+      <label for="{{ form.summary.id_for_label }}">Summary:</label>
+      {{ form.summary }}
+    </div>
+
+    <div class="form-field-wrapper">
+      {{ form.content.errors }}
+      <label for="{{ form.content.id_for_label }}">Content:</label>
+      {{ form.content }}
+    </div>
+
+    <div class="form-field-wrapper">
+      {{ form.thumbnail.errors }}
+      <label for="{{ form.thumbnail.id_for_label }}">Thumbnail:</label>
+      {{ form.thumbnail }}
+    </div>
+
+    {{ form.tags }}
+
+    <!-- 여기에 thumbnail과 tags 필드를 추가하시면 됩니다 -->
+
+    <button type="submit">Submit</button>
   </form>
 
   <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
- 
+
   <script src="{% static 'js/easyQuill.js' %}"></script>
   <script>
-
-     const summer = [
+  
+    const summer = [
     {
       "role": "system",
       "content": "As a student who's just beginning to dive into web development, you provide bright, cheerful, and reality-based answers. Please respond in Korean."
-    }]
-
-    const quillInstance = djq['id_content'].quill;
-
-    const easyQuill = new EasyQuill(quillInstance);
-
-    
-
-
-
-  const toolbar = quillInstance.getModule('toolbar').container;
-
-    // Create a new button for image upload
-    let button = document.createElement('button');
-    button.innerHTML = 'gpt'; // Label the button
-    button.setAttribute('type', 'button'); // Make sure it doesn't submit forms
-    button.setAttribute('id', 'gptSubmitButton'); // Give it an ID
-    button.classList.add('w-24', 'bg-red-400', 'p-2', 'rounded-md', 'text-amber-400', 'font-bold');
-    button.classList.add('ql-custom'); // Add a class for styling
-
-    toolbar.appendChild(button); 
-// 버튼 클릭 이벤트 리스너 추가
-
-
-
-document.getElementById('gptSubmitButton').addEventListener('click', function() {
-  this.disabled = true; // Disable the submit button to prevent duplicate submissions
-  const loadingIndicator = document.createElement('div');
-  loadingIndicator.className = 'loader bg-gray-200 p-4 rounded-full flex space-x-2';
-  loadingIndicator.innerHTML = `
-    <div class="w-4 h-4 bg-gray-600 rounded-full animate-bounce"></div>
-    <div class="w-4 h-4 bg-gray-600 rounded-full animate-bounce200"></div>
-    <div class="w-4 h-4 bg-gray-600 rounded-full animate-bounce400"></div>
-  `;
-  this.parentNode.insertBefore(loadingIndicator, this); // Insert the loading indicator before the submit button
-
-  // Immediately invoked async function to use await
-  (async () => {
-    const range = quillInstance.getSelection();
-    if (range && range.length > 0) {
-      const text = quillInstance.getText(range.index, range.length);
-      const requestText = {"role": "user", "content": text};
-      const requestArray = [requestText, ...summer];
-      const apiUrl = `https://open-api.jejucodingcamp.workers.dev/`;
-
-      try {
-        const submitDataToApi = async (data) => {
-          const response = await axios.post(apiUrl, data, {
-            headers: {"Content-Type": "application/json"},
-            maxBodyLength: Infinity,
-            response_format: {type: "json_object"},
-            temperature: 0.2,
-          });
-          return response.data;
-        };
-
-        const apiResponse = await submitDataToApi(requestArray);
-        // console.log(apiResponse.choices[0].message.content);
-
-        easyQuill.setText(apiResponse.choices[0].message.content )
-
-        if (text.length <= 2000) {
-         // console.log(text);
-        } else {
-          console.error("선택된 텍스트가 2000자를 초과합니다.");
-        }
-      } catch (error) {
-        console.error("API post error:", error);
-      }
-    } else {
-      console.log("텍스트가 선택되지 않았습니다.");
     }
-    loadingIndicator.remove(); // Remove the loading indicator once the response is received
-    this.disabled = false; // Re-enable the submit button
-  })();
-});
+  ]
 
+  const quillInstance = djq['id_content'].quill;
+
+  const easyQuill = new EasyQuill(quillInstance);
+
+  const toolbar = quillInstance
+    .getModule('toolbar')
+    .container;
+
+  // Create a new button for image upload
+  let button = document.createElement('button');
+  button.innerHTML = 'gpt'; // Label the button
+  button.setAttribute('type', 'button'); // Make sure it doesn't submit forms
+  button.setAttribute('id', 'gptSubmitButton'); // Give it an ID
+  button
+    .classList
+    .add('w-24', 'bg-red-400', 'p-2', 'rounded-md', 'text-amber-400', 'font-bold');
+  button
+    .classList
+    .add('ql-custom'); // Add a class for styling
+
+  toolbar.appendChild(button);
+  // 버튼 클릭 이벤트 리스너 추가
+
+  document
+    .getElementById('gptSubmitButton')
+    .addEventListener('click', function () {
+      this.disabled = true; // Disable the submit button to prevent duplicate submissions
+      const loadingIndicator = document.createElement('div');
+      loadingIndicator.className = 'loader bg-gray-200 p-4 rounded-full flex space-x-2';
+      loadingIndicator.innerHTML = `
+  <div class="w-4 h-4 bg-gray-600 rounded-full animate-bounce"></div>
+  <div class="w-4 h-4 bg-gray-600 rounded-full animate-bounce200"></div>
+  <div class="w-4 h-4 bg-gray-600 rounded-full animate-bounce400"></div>
+  `;
+      this
+        .parentNode
+        .insertBefore(loadingIndicator, this); // Insert the loading indicator before the submit button
+
+      // Immediately invoked async function to use await
+      (async () => {
+        const range = quillInstance.getSelection();
+        if (range && range.length > 0) {
+          const text = quillInstance.getText(range.index, range.length);
+          if (text.length <= 2000) {
+            const requestText = {
+              "role": "user",
+              "content": text
+            };
+            const requestArray = [
+              requestText, ...summer
+            ];
+            const apiUrl = `https://open-api.jejucodingcamp.workers.dev/`;
+
+            try {
+              const submitDataToApi = async (data) => {
+                const response = await axios.post(apiUrl, data, {
+                  headers: {
+                    "Content-Type": "application/json"
+                  },
+                  maxBodyLength: Infinity,
+                  response_format: {
+                    type: "json_object"
+                  },
+                  temperature: 0.2
+                });
+                return response.data;
+              };
+              const position = range.index + range.length;
+
+              const apiResponse = await submitDataToApi(requestArray);
+              easyQuill.insertText(position, apiResponse.choices[0].message.content);
+            } catch (error) {
+              console.error("API post error:", error);
+            }
+          } else {
+            console.error("선택된 텍스트가 2000자를 초과합니다.");
+          }
+        } else {
+          console.log("텍스트가 선택되지 않았습니다.");
+        }
+        loadingIndicator.remove(); // Remove the loading indicator once the response is received
+        this.disabled = false; // Re-enable the submit button
+      })();
+    });
     // Ensure you have a text input field with the class 'tagify-field' for tags.
     var inputElm = document.querySelector('.tagify-field');
-    var tagsList = {{tags_list | safe}}
+    var tagsList = {{ tags_list | safe }}
 
-// This injects your tags_list into the JS as an array.
+    // This injects your tags_list into the JS as an array.
     // Initialize Tagify on the tags input field
     var tagify = new Tagify(inputElm, {
       whitelist: tagsList,
@@ -169,25 +173,29 @@ document.getElementById('gptSubmitButton').addEventListener('click', function() 
           });
       });
 
-      document.getElementById('post-form').addEventListener('submit', function(e){
+    document
+      .getElementById('post-form')
+      .addEventListener('submit', function (e) {
         // Prevent the default form submission
         e.preventDefault();
-        
+
         // Get the tag data from Tagify
-        var tagData = tagify.value.map(tag => tag.value);
-      
+        var tagData = tagify
+          .value
+          .map(tag => tag.value);
+
         // Assign the transformed tag data to a hidden input, or modify the form data directly
         var hiddenInput = document.createElement('input');
         hiddenInput.setAttribute('type', 'hidden');
         hiddenInput.setAttribute('name', 'tags'); // The name attribute should match your model field name
         hiddenInput.setAttribute('value', JSON.stringify(tagData));
         this.appendChild(hiddenInput);
-      
+
         // Now, submit the form
         this.submit();
       });
+
+    
   </script>
 
-  {% endblock %}
-  
-   
+{% endblock %}
