@@ -23,6 +23,7 @@ from django.core.files.base import ContentFile
 from main.mixins import Custom404Mixin, UserIsAuthorMixin
 from django.http import Http404
 from .mixins import LikeMixin, BookmarkMixin
+from django.shortcuts import redirect
 
 
 class ToggleLikeView(LoginRequiredMixin, View):
@@ -344,17 +345,20 @@ class CommentUpdateView(
         return context
 
 
-class CommentDeleteView(
-    UserIsAuthorMixin, LoginRequiredMixin, UserPassesTestMixin, DeleteView
-):
+class CommentDeleteView(DeleteView):
     model = Comment
     template_name = "blog/include/comment_confirm_delete.html"
 
-    def get_success_url(self):
-        return reverse_lazy("blog_detail", kwargs={"pk": self.object.post.pk})
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        # 댓글의 is_deleted 상태를 True로 설정하고, 내용을 변경
+        self.object.is_deleted = True
+        self.object.content = "댓글이 삭제되었습니다."
+        self.object.save()
 
-    def get_object(self, queryset=None):
-        comment = super().get_object(queryset)
-        if comment.post is None or comment.author is None:
-            raise Http404("댓글이 삭제되었거나 유효하지 않습니다.")
-        return comment
+        messages.success(request, "댓글이 성공적으로 삭제되었습니다.")
+        return redirect(self.get_success_url())
+
+    def get_success_url(self):
+        # 댓글이 속한 게시물로 리다이렉트
+        return reverse_lazy("blog_detail", kwargs={"pk": self.object.post.pk})

@@ -1,7 +1,8 @@
 {% load static %}
 
 {% for comment in comments %}
-   
+  
+{% if not comment.is_deleted %}
 <a href="{% url 'public_profile' slug=comment.author %}" class="group font-Happiness text-lg hover:underline underline-offset-2 text-white">
   {{ comment.author }}
   {% if comment.author_profile_picture_url %}
@@ -10,11 +11,13 @@
       <img src="{% static 'images/logos/picture-default.webp' %}" class="rounded-full h-12 w-12 group-hover:ring-1 group-hover:ring-offset-2 group-hover:ring-white" alt="Default profile picture">
   {% endif %}
 </a>
+{% endif %}
 
-
-      <p>
-         {{ comment.content }}</p>
-      {% if user.is_authenticated %}
+<p class="pb-10">{{ comment.content }}</p>
+{% if user.is_authenticated %}
+  
+  
+      {% if not comment.is_deleted %}
       <form method="post" action="{% url 'toggle_like' pk=comment.pk %}" class="flex items-center space-x-1">
         {% csrf_token %}
         <input type="hidden" name="content_type" value="comment">
@@ -22,16 +25,20 @@
         <button type="submit" class="flex items-center justify-center px-2 py-1 text-amber-500 hover:text-amber-600 focus:outline-none">
           {% if comment.liked %}
             <i class="fas fa-heart text-xs"></i>
-            <span class="ml-1 text-xs">Liked</span>
+            <span class="ml-1 text-xs">좋아요 {{ comment.like_count }}</span>
           {% else %}
             <i class="far fa-heart text-xs"></i>
-            <span class="ml-1 text-xs">Like</span>
+            <span class="ml-1 text-xs">Like?</span>
           {% endif %}
         </button>
       </form>
+    {% endif %}
+    {% else %}
+    <span class="text-xs">좋아요 {{ comment.like_count }}</span>
+    {% endif %}
     
         
-        <!-- 북마크 버튼 -->
+    {% if not comment.is_deleted %}
         <form method="post" action="{% url 'toggle_bookmark' pk=comment.pk %}" class="flex items-center space-x-1">
           {% csrf_token %}
           <input type="hidden" name="content_type" value="comment">
@@ -52,7 +59,7 @@
       {% endif %}
 
 
-      {% if user.is_authenticated %}
+    {% if user.is_authenticated and not comment.is_deleted %}
       <button onclick="toggleReplyForm('reply-form-{{ comment.id }}');"  class="flex justify-center items-center w-24 h-10 bg-black  rounded-lg">Reply</button>
       <div id="reply-form-{{ comment.id }}" style="display:none;">
         {% include 'blog/include/reply_form.html' with parent_id=comment.id form=comment_form %}
@@ -64,7 +71,9 @@
       {% endif %}
 
       {% for reply in comment.replies_list %}
+
         <div class="reply pl-4 border-l-2 border-gray-200">
+          {% if not reply.is_deleted %}
           <a href="{% url 'public_profile' slug=reply.author %}" class="group font-Happiness text-lg hover:underline underline-offset-2 text-white">
             {{ reply.author }}
             {% if reply.author_profile_picture_url %}
@@ -73,8 +82,9 @@
                 <img src="{% static 'images/logos/picture-default.webp' %}" class="rounded-full h-12 w-12 group-hover:ring-2 group-hover:ring-offset-2 group-hover:ring-white" alt="Default profile picture">
             {% endif %}
         </a>
+          {% endif %}
         
-          <p>{{ reply.content }}</p>
+          <p class="pb-10">{{ reply.content }}</p>
           {% if user.is_authenticated %}
             <!-- 대댓글에 대한 좋아요 버튼 -->
             <form method="post" action="{% url 'toggle_like' pk=reply.pk %}" class="flex items-center space-x-1">

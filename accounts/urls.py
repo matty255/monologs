@@ -35,7 +35,7 @@ urlpatterns = [
     ),
     path("profile/<int:pk>/follow/", FollowToggleView.as_view(), name="follow_toggle"),
     path(
-        "follow_list/<str:username>/",
+        "follow_list/<int:id>/",
         UserFollowingListView.as_view(),
         name="follow_list",
     ),

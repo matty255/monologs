@@ -86,23 +86,20 @@
 <section class="main-section w-full max-w-2xl  bg-neutral-800 mt-24 sticky top-0 z-10">
   <div id="sentinel" class="h-1"></div> <!-- IntersectionObserver를 위한 sentinel -->
 
-
-  <div>
-
-    <div class="main-title w-full sticky top-0 p-4 bg-neutral-800">
-      <aside class="mb-3 ">
-        {% for tag in tags %}
-        <a href="{% url 'search' %}?tag={{ tag.name }}" class="px-2 bg-amber-300 text-neutral-700 rounded-3xl hover:bg-amber-400 hover:text-neutral-900">{{ tag.name }}</a>
-          {% endfor %}
-      
-        </aside>
-  <h2 class="  text-white text-3xl font-semibold ">
-    
-    {{ post.title }}
-
-
-  </h2>
-</div>
+  <div id="mainHeader" class="main-title w-full sticky top-0 p-4 bg-neutral-800 transition-transform duration-500">
+    <aside class="mb-3">
+      {% for tag in tags %}
+      <a href="{% url 'search' %}?tag={{ tag.name }}" class="px-2 bg-amber-300 text-neutral-700 rounded-3xl hover:bg-amber-400 hover:text-neutral-900">{{ tag.name }}</a>
+      {% endfor %}
+    </aside>
+    <h2 class="text-white text-3xl font-semibold">
+      {{ post.title }}
+    </h2>
+   
+    <button id="toggleHeaderBtn" class=" bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors duration-300 absolute right-10 hidden">
+      Toggle Header
+    </button>
+  </div>
 
     
       {% if user.is_authenticated %}
@@ -114,7 +111,7 @@
     
   
   </div>
-  <div class="prose-xl px-10  min-h-screen pt-24">
+  <div class="main-content prose-xl px-10  min-h-screen">
     
     {{ post.content.html|safe }}
   
@@ -192,6 +189,15 @@
 const section = document.querySelector('.main-section');
 const title = document.querySelector('.main-title');
 const sentinel = document.getElementById('sentinel');
+const mainContent = document.querySelector('.main-content');
+const toggleHeaderBtn = document.getElementById('toggleHeaderBtn');
+const mainHeader = document.getElementById('mainHeader');
+
+document.getElementById('toggleHeaderBtn').addEventListener('click', function() {
+    mainHeader.classList.toggle('-translate-y-full');
+    toggleHeaderBtn.classList.toggle('fixed', 'bottom-4', 'right-4', 'z-50', 'p-2');
+});
+
 const observer = new IntersectionObserver(
   ([entry]) => {
     if (!entry.isIntersecting) {
@@ -199,6 +205,8 @@ const observer = new IntersectionObserver(
       section.classList.remove('max-w-2xl');
       title.classList.remove('sticky');
       title.classList.add('fixed');
+      mainContent.classList.add('mt-40');
+      toggleHeaderBtn.classList.remove('hidden');
 
     } else {
       // 더미 요소(sentinel)가 뷰포트에 나타나면 (즉, 섹션이 아직 상단에 도달하지 않았을 때)
@@ -206,6 +214,9 @@ const observer = new IntersectionObserver(
       section.classList.add('max-w-2xl');
       title.classList.remove('fixed');
       title.classList.add('sticky');
+      mainContent.classList.remove('mt-40');
+      toggleHeaderBtn.classList.add('hidden');
+      mainHeader.classList.remove('-translate-y-full');
 
     }
   },
