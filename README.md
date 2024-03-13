@@ -278,10 +278,8 @@ gantt
 
 ## figma
 
-- 와이어프레임(제작 중)
+- 와이어프레임
   [피그마](https://www.figma.com/files/project/212207199/monologs?fuid=1012359410667987596)
-
-- 디자인
 
 ## 설치 방법
 
@@ -447,31 +445,112 @@ http://43.200.237.70:8000/@[username]/  퍼블릭 프로필(블로그)
 - pip
 - Git
 
-## 트러블 슈팅
+# 트러블 슈팅
 
-### 1. django-quill-editor custom
+---
 
-ai 서비스를 위해, 전역 객체에 접근. 한국
-패키지를 뜯기는 그러니까
-docker compose
+## 목차
 
-### 2. django-tailwind docker image 설성
+1. [Django-Quill-Editor 커스텀](#1-django-quill-editor-커스텀)
+2. [AWS Lightsail 인스턴스](#2-aws-lightsail-인스턴스)
+3. [Mix-in Circular Import 문제 해결](#3-mix-in-circular-import-문제-해결)
 
-1에서 뜯은 docker compose로 tailwind도 말려듦
+---
 
-### 3. AWS Lightsail instance
+## 1. django-quill-editor custom
 
-배포를 위해 컨테이너 설정
-docker compose 오케스트레이션
+## 목차
 
-instance로 전환
+1. [Django-Quill-Editor 커스텀](#1-django-quill-editor-커스텀)
+2. [Docker 환경 구성](#2-docker-환경-구성)
+3. [결론 및 배운 점](#3-결론-및-배운-점)
 
-### 4. Docker login
+---
 
-### 5. mix-in Circular import
+### 1. Django-Quill-Editor 커스텀
 
-앱 전체의 다양한 콘텐츠 유형 간의 상호 참조가 필요한 Like, Bookmark를 코드의 모듈성과 재사용성을 강화하기 위해 우리는 믹스인 기반 접근 방식을 채택했습니다,
-그래서 모든 콘텐츠에 대한 좋아요 및 북마크 상태를 확인하기 위한 로직을 만들고 이걸 content type이랑 object id를 가지고 어디에서나 쓸수 있게 LikeMixin. BookmarkMixin 이라는 이름으로 캡슐화했습니다.
-그런데 이걸 실제 모델 내에서 쓰려니 Circular import 순환참조 문제가 발생하였습니다.
+AI 서비스 개발 과정에서 `django-quill-editor`의 Quill 인스턴스에 접근해야 하는 상황이 발생했습니다. 클라이언트 단에서 정적으로 빌드된 인스턴스에 접근하는 것은 어려웠고, 이에 관련 문서와 GitHub 리포지터리를 탐색했습니다. 흥미롭게도 이 라이브러리는 한국인 개발자가 만든 것이었습니다.
 
-그래서 채택한 방법, 믹스인에서 Django의 ContentType 라이브러리가 가지고 있는 apps.get_model 동적 모델 검색을 사용해서 모델 클래스가 런타임에 모델을 직접 가져오게 해서 순환 종속성을 방지했습니다.
+문제 해결을 위한 탐색 과정에서, 특정 [이슈](https://github.com/LeeHanYeong/django-quill-editor/issues/95)를 발견했고, 이는 전역 객체를 추가하여 인스턴스 접근에 성공했다고 설명하고 있었습니다. 하지만, 이와 관련된 [풀 리퀘스트](https://github.com/LeeHanYeong/django-quill-editor/pull/96)는 2년 동안 머지되지 않은 상태였습니다. 해결 방안으로는 다음 세 가지가 있었습니다:
+
+1. 문제를 제기한 개발자의 포크 버전 `django-quill-editor`를 설치한다.
+2. 필요한 두 파일만 수정하는 간단한 방법으로 자체적으로 포크 후 pip 패키지를 만들거나, 리포지터리를 설치 경로로 등록한다.
+3. 직접 라이브러리 파일을 수정한다.
+
+그러나 관리되지 않은 패키지를 포크해서 뜯기에는 너무 적은, 10자 내외의 수정이었기 때문에 Docker를 사용해서 변경해보기로 해씁니다.
+
+#### 2. Docker 환경 구성
+
+이 과정을 배포용으로 마련하기 위해서는 Docker 설치가 필요했으며, Docker 환경에서 Tailwind CSS를 빌드하려면 `docker-compose`를 사용해야 했습니다. 그러나 `docker-compose`는 AWS Lightsail 인스턴스가 기본적으로 오케스트레이션을 무료로 지원하지 않기 때문에, DockerHub에 Docker 이미지를 게시해야 했습니다. 이 과정에서 GUI가 필요해 Docker Desktop 설치로 이어졌고, 전체적으로 재미있는 경험이었습니다.
+
+#### 3. 결론 및 배운 점
+
+이 프로젝트를 통해 복잡한 문제에 접근하는 방법, 그리고 Docker와 같은 컨테이너화 기술을 활용하여 개발 환경을 구성하고 배포하는 과정을 경험했습니다. 비록 권장되지 않는 접근방식이겠으나, 실제 문제 해결 과정에서 이러한 선택이 필요할 수 있음을 배웠습니다.
+
+## 2. AWS Lightsail instance
+
+## 목차
+
+1. [AWS Lightsail 인스턴스 설정](#1-aws-lightsail-인스턴스-설정)
+2. [DockerHub 문제와 해결](#2-dockerhub-문제와-해결)
+3. [Docker Compose CLI 사용과 통신 문제](#3-docker-compose-cli-사용과-통신-문제)
+4. [배포 성공과 후속 조치](#4-배포-성공과-후속-조치)
+
+---
+
+#### 1. AWS Lightsail 인스턴스 설정
+
+AWS Lightsail 인스턴스를 사용하여 배포 환경을 구성하는 과정에서 `django-tailwind` 레포지터리의 [Docker Compose 예시 파일](https://github.com/timonweb/django-tailwind/blob/master/example/docker-compose.yml)을 참고하였습니다. 그러나 Lightsail 인스턴스에서 배포가 제대로 이루어지지 않았고, 이에 대한 원인 분석을 진행하였습니다.
+
+#### 2. DockerHub 문제와 해결
+
+Docker Compose를 사용한 오케스트레이션은 Lightsail이 기본적으로 지원하지 않으며, 단일 컨테이너 배포만 가능합니다. 이 문제를 해결하기 위해 DockerHub를 사용하기로 결정하였으나, 몇 가지 문제에 직면하였습니다.
+
+- **해결 1**: DockerHub에 SSL 키 파일을 다운로드하여 사용하려 했으나, 예상과 달리 작동하지 않았습니다.
+- **해결 2**: 일단 비밀번호가 있으면 되기에 DockerHub 계정 설정에서 초기 비밀번호를 변경한 후 직접 접속하여 문제를 해결하였습니다.
+
+#### 3. Docker Compose CLI 사용과 통신 문제
+
+Docker Compose CLI의 공식 문서에 따르면, DockerHub에 로그인 후 `docker-compose.yml` 파일을 AWS SSL 키를 사용하여 인스턴스로 복사하라고 안내하고 있습니다. 그러나 경로 설정에도 불구하고 지속적인 타임아웃으로 인해 에러가 발생했습니다.
+
+- **해결**: 놀랍게도 휴대폰의 와이파이를 끄고 핫스팟을 켠 후 컴퓨터와 연결하여 SSL 요청을 보냄으로써 문제를 해결했습니다. 이는 통신사가 일부 요청을 차단한다는 사실을 알게 된 날이었습니다.
+
+### 4. 배포 성공과 후속 조치
+
+모든 문제를 해결하고 성공적으로 컨테이너 배포를 완료했습니다. 이 과정에서 백엔드에는 Nginx를 사용하여 HTTPS 인증서를 받고 갱신을 한다는 점을 알게 되었습니다. 프론트엔드의 경우 CloudFront와 같은 서비스를 사용하면 추가비용 없이 https를 달 수 있었는데 백엔드에서의 유사한 서비스 AWS Load balancer는 따로 비용이 발생하고 있었습니다. 백엔드 개발자는 한달 서버비로 3~5만원 정도는 써줘야 한다던데 그 말을 이해했습니다.
+
+> 바닐라 아이스크림을 사면 차에 시동이 안걸려요.
+
+이 이야기가 되게 생각나는 프로젝트였습니다.
+
+## 3. mix-in Circular import
+
+아래는 마지막 트러블슈팅 섹션을 정리한 내용과 함께 전체 문서의 목차를 포함하고 있습니다. 목차는 링크를 문법에 맞게 설정하여 각 섹션으로 쉽게 이동할 수 있도록 구성했습니다.
+
+### 3. Mix-in Circular Import 문제 해결
+
+마지막으로, 애플리케이션 전체에서 다양한 콘텐츠 유형 간의 상호 참조가 필요한 `Like`와 `Bookmark` 기능을 효율적으로 구현하기 위해, Mix-in 기반의 접근 방식을 채택했습니다. 이를 통해 모든 콘텐츠 유형에 대한 '좋아요' 및 '북마크' 상태를 확인하는 로직을 중앙에서 관리하고자 했습니다. `LikeMixin`과 `BookmarkMixin`으로 캡슐화하여 `content_type` 및 `object_id`를 쓰게끔 만들었습니다.
+
+그러나 이 코드를 실제 모델에 적용하려고 하니 순환 참조(Circular Import) 문제가 발생했습니다. 이 문제는 한 모듈이 다른 모듈을, 그 모듈이 다시 첫 번째 모듈을 참조할 때 발생하는 것입니다. 순환 참조는 코드의 실행을 방해하고, 모듈 간의 종속성 문제를 야기합니다.
+
+#### 해결
+
+이 문제를 해결하기 위해, Django의 `ContentType` 라이브러리가 제공하는 `apps.get_model`을 활용하는 방법을 채택했습니다. `apps.get_model`은 동적으로 모델 클래스를 검색하여 런타임에 직접 모델을 가져올 수 있게 해줍니다. 이 접근법을 통해, Mix-in에서 필요한 모델을 동적으로 로드함으로써 순환 종속성 문제를 우회할 수 있었습니다.
+
+```python
+class LikeMixin:
+    def get_like_status(self, user, instance):
+        if not user.is_authenticated:
+            return False
+        Like = apps.get_model("blog", "Like")
+        content_type = ContentType.objects.get_for_model(instance.__class__)
+        liked = Like.objects.filter(
+            content_type=content_type, object_id=instance.id, user=user
+        ).exists()
+        return liked
+
+```
+
+이 방식을 적용함으로써, 다양한 콘텐츠 유형에 대한 상호 참조를 효과적으로 관리할 수 있게 되었으며, 코드의 모듈성과 재사용성이 크게 향상되었습니다.
+
+긴 글 읽어주셔서 감사합니다.
