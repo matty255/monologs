@@ -8,23 +8,40 @@ http://43.200.237.70:8000/
 - Django Monolithic Blog Project
 `monologs`는 사용자가 블로그 포스트를 작성하고, 로그인 및 회원가입 기능을 통해 사용자 인증을 관리하는 동시에, 게시글을 올릴 수 있는 게시판을 제공하는 웹 애플리케이션입니다.
 
-## 기능(제작 중)
+## 편의 기능(제작 중)
 - **블로그 포스트 작성**: 사용자는 풍부한 텍스트 편집 기능을 제공하는 quill 에디터를 사용하여 블로그 포스트를 작성할 수 있습니다. 이 오픈소스 리치 텍스트 에디터는 기본적으로 이미지업로드와 동영상 임베딩 기능을 제공합니다.
 - **회원가입 및 로그인**: 회원으로 가입하면 게시글과 댓글을 쓸 수 있습니다.
 - **게시판 기능**: 사용자는 자신의 블로그 포스트를 게시하고 다른 사용자의 포스트를 볼 수 있습니다.
 - **팔로우 기능**: 사용자는 다른 사용자를 팔로우 할 수 있습니다.
-- **공유 기능**: 
-- **AI 글 작성**:
-- **북마크**:
-- **like**:
-- **카테고리 편집**:
+- **공유 기능**: 사용자는 자신의 퍼블릭 프로필 페이지를 공유할 수 있습니다. 
+- **AI 글 작성**: AI 글 초안 작성 기능! 커스텀.
+- **북마크**: 글이나 댓글을 북마크하여 사용자의 프라이빗 프로필 페이지에서 볼 수 있습니다.
+- **like**: 글이나 댓글에 LIKE를 답니다. 자신의 컨텐츠는 LIKE 할 수 없습니다.
+- **카테고리 편집**: 퍼블릭 프로필 페이지에서, 좀더 블로그 같이 카테고리를 편집할 수 있습니다.
+- **태그 필터 기능**: 좋아하는 태그만 모아보는 검색 페이지.
+- **검색 기능**: 검색 기능
+- 
 
+## 최적화 기능
+- **사이트 내 이미지 Wepb converter**: admin 페이지에 이미지 컨버터가 있습니다
+- **업로드 되는 이미지 자동 Webp 변환 및 이름 변경**: 보안하고 성능을 위해서.
+- **quill editor 내에서 이미지 압축**: Webp이 될수 있는건 한정된 확장자이기 때문에 quill 에디터에 다양한 확장자를 지원하게 하고 대신 이미지를 압축해서 올립니다.
+- **template 내 component 분리**: include 폴더를 만들어서 재사용 할 수 있는 컴포넌트 단위로 분리하고 가독성
+- **custom commands**: django monolic 프로젝트를 위하여 커스텀 커맨드 제작, bash
+- **brouser hot reload**: 개발 편의성으로 django-tailwind를 npm으로 깔아서 tailwind plugin을 사용할 수 있게 하고 커스텀 유틸리티 설정을 실시간으로 빌드함. 클라이언트단 제작을 위해 새로고침하지 않아도 됨
+- **Docker compose**: 도커 이미지를 생성하고 도커허브에 올림. tailwind와 django-app을 combine해서 1개의 컨테이너로 서브함
+- **AWS lightsail로 배포**: DockerHub와 AWS lightsail을 연동해서 배포함. 다만, nginx를 깔지 않아서 https가 아닌 http. 
+
+- 
 
 ## ERD
-![Database ERD](./static/images/readme/erd.png)
+![Database ERD](./static/images/banners/erd-final.webp)
 
 - tags 중계 테이블
-- GenericForeignKey를 사용해서 post와 comment에 like와 bookmark 추가(클래스 상속으로 변경?)
+- GenericForeignKey를 사용해서 post와 comment에 like와 bookmark를 추가하고 그걸 mixin으로 재사용
+- comment 삭제를 -> 인스턴스 삭제 대신 컨텐츠 오버라이드하고 클라이언트 단에서 처리
+- CustomUser 모델의 profile_picture를 crop image랑 연동하고 OneToOneField로 1개만 가지게 설정
+- 
 - 
 
 ```

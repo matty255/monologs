@@ -61,37 +61,37 @@
     $('#add-category').on('click', function() {
       var name = $('#id_name').val().trim();
       if (!name) {
-        alert("The name cannot be empty.");
-        return;
+          alert("The name cannot be empty.");
+          return;
       }
-      if (selectedNode && selectedNode.children.length > 0) {
-        alert("Cannot add a category under a child node.");
-        return;
-      }
+      var parentNodeId = selectedNode ? selectedNode.id : '#'; // 루트 노드 추가를 위해 '#' 사용
       var existingNode = $('#category-tree').jstree('get_node', function(node) {
-        return node.text.trim().toLowerCase() === name.toLowerCase();
+          return node.text.trim().toLowerCase() === name.toLowerCase();
       });
       if (existingNode) {
-        alert('A category with this name already exists.');
-        return;
+          alert('A category with this name already exists.');
+          return;
       }
-      $('#category-tree').jstree().create_node(selectedNode ? selectedNode.id : '#', {
-        text: name
-      }, 'last');
+      // 부모 노드가 명확하게 지정된 상태에서 노드 추가
+      $('#category-tree').jstree().create_node(parentNodeId, {
+          text: name,
+          parent: parentNodeId // 부모 ID 명시적으로 설정
+      }, 'last', function(new_node) {
+          // 새로운 노드 생성 후 콜백에서 추가 작업 가능
+          console.log("New node added:", new_node);
+      });
       $('#id_name').val('');
       $('#add-category').prop('disabled', true);
-    });
+  });
   
     $('#category-form').on('submit', function(e) {
       e.preventDefault();
-  
-      var treeData = $('#category-tree').jstree(true).get_json('#', {
-        flat: true
-      });
-  
+
+      // get_json에서 flat 옵션을 제거하여 중첩 구조를 유지
+      var treeData = $('#category-tree').jstree(true).get_json('#', { 'no_state': true, 'no_li_attr': true, 'no_a_attr': true });
+    
       var formData = new FormData(this);
       formData.append('tree', JSON.stringify(treeData));
-  
       $.ajax({
         url: this.action,
         type: this.method,
@@ -101,10 +101,12 @@
         success: function(response) {
           // Handle success
           alert('Saved successfully.');
+      
           if (response.created_nodes && response.created_nodes.length > 0) {
+            var jsTreeInstance = $('#category-tree').jstree(true);
+      
             response.created_nodes.forEach(function(node) {
-              // Update the node ID in the jsTree instance
-              var jsTreeInstance = $('#category-tree').jstree(true);
+              // 임시 ID에서 실제 ID로 노드 ID 업데이트
               var originalNode = jsTreeInstance.get_node(node.temp_id);
               if (originalNode) {
                 jsTreeInstance.set_id(originalNode, node.new_id);
@@ -112,10 +114,15 @@
             });
           }
         },
-        error: function() {
-          // Handle error
-          alert('An error occurred while saving.');
+        error: function(xhr) {
+          // 오류 응답 처리
+          var errorMsg = "An error occurred while saving.";
+          if (xhr.responseJSON && xhr.responseJSON.message) {
+              errorMsg += " " + xhr.responseJSON.message;
+          }
+          alert(errorMsg);
           $('#category-tree').jstree('refresh');
+          
         }
       });
     });
