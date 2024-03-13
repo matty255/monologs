@@ -35,26 +35,119 @@ http://43.200.237.70:8000/
 - 
 
 ## ERD
-![Database ERD](./static/images/banners/erd-final.webp)
+![Database ERD](./static/images/readme/erd-final-final.webp)
 
-- tags 중계 테이블
+- Post_Tags 중간 테이블을 통해 CustomUser 및 Tag 에 대한 관게 설정(m:n)
 - GenericForeignKey를 사용해서 post와 comment에 like와 bookmark를 추가하고 그걸 mixin으로 재사용
 - comment 삭제를 -> 인스턴스 삭제 대신 컨텐츠 오버라이드하고 클라이언트 단에서 처리
 - CustomUser 모델의 profile_picture를 crop image랑 연동하고 OneToOneField로 1개만 가지게 설정
-- 
-- 
+- 카테고리는 CustomUser 와 다대일 관계로 연결 (한 명의 사용자가 여러 카테고리를 생성할 수 있음).
+Post는 이제 다대일(많은 게시물이 하나의 카테고리에 속할 수 있음) 로 Category 와 연결
 
+
+```mermaid
+Table CustomUser {
+  id int [pk, increment]
+  username varchar
+  email varchar
+  profile_status varchar(200) [null]
+  profile_message text [null]
+  profile_picture_id int [null, ref: > CroppedImage.id]
+}
+
+Table CroppedImage {
+  id int [pk, increment]
+  original_file varchar 
+  file varchar 
+ user_id int [null, ref: > CustomUser.id] 
+  uploaded datetime
+  
+}
+
+Table Category {
+  id int [pk, increment]
+  name varchar(100)
+  author_id int [ref: > CustomUser.id]
+  parent_id int [null, ref: > Category.id] 
+}
+
+Table Tag {
+  id int [pk, increment]
+  name varchar(100) [unique]
+}
+
+Table Post {
+  id int [pk, increment]
+  title varchar(100)
+  summary varchar(200) [null] 
+  author_id int [ref: > CustomUser.id]
+  content text
+  thumbnail varchar [null] 
+  created_at datetime
+  updated_at datetime
+  category_id int [null, ref: > Category.id] 
+}
+
+Table Comment {
+  id int [pk, increment]
+  content text
+  author_id int [ref: > CustomUser.id]
+  created_at datetime
+  updated_at datetime
+  post_id int [ref: > Post.id]
+  parent_id int [null, ref: > Comment.id]
+  is_deleted bool [default: false] 
+}
+
+Table Like {
+  id int [pk, increment]
+  user_id int [ref: > CustomUser.id]
+  content_type_id int
+  object_id int
+  
+}
+
+Table Bookmark {
+  id int [pk, increment]
+  user_id int [ref: > CustomUser.id]
+  content_type_id int
+  object_id int
+  // Unique together: user_id, content_type_id, object_id
+}
+
+Table Follow {
+  id int [pk, increment]
+  follower_id int [ref: > CustomUser.id]
+  following_id int [ref: > CustomUser.id]
+ 
+}
+
+Table Post_Tags {
+  post_id int [ref: > Post.id]
+  tag_id int [ref: > Tag.id]
+ 
+}
+
+Ref: "CroppedImage"."user_id" - "CustomUser"."profile_picture_id" 
+
+
+
+```
+
+# 배포 방법
 ```
 http://43.200.237.70:8000/
 
-
-docker-compose -f docker-compose.dev.yml up -d --build 
-
-docker build -t roki7/django-app:web-latest .
+# AWS lightsail 인스턴스에 docker, docker compose 설치
+# SSH로 인스턴스의 루트 경로에 docker-compose.yml 전송
+# docker image를 만들어서 dockerHub에 push 한 후에 인스턴스에서
 docker-compose up -d
 
-docker push 유저이름/django-app:web-latest
+# 로컬에서 도커 빌드 시
+docker-compose up -d 
+docker build -t 유저이름/django-app:web-latest .
 
+docker push 유저이름/django-app:web-latest
 
 ```
 ## WBS
@@ -78,13 +171,13 @@ gantt
     CRUD 구현             :done,    crud, after urldes, 2d
 
     section UI 제작 및 추가 기능 
-    백엔드 추가 기능           :         backend, 2024-03-08, 3d
+    백엔드 추가 기능           :done         backend, 2024-03-08, 3d
     피그마 디자인              :         backend, 2024-03-08, 3d
-    프론트엔드 기능            :         backend, 2024-03-08, 3d
+    프론트엔드 기능            :done        backend, 2024-03-08, 3d
 
     section 테스트 & 배포
-    테스팅                :         test, 2024-03-10, 2d
-    배포                  :         deploy, after test, 1d
+    테스팅                :done         test, 2024-03-10, 2d
+    배포                  :done       deploy, after test, 1d
     
     section 종료
     프로젝트 종료          :         end, 2024-03-11, 2d
@@ -121,11 +214,10 @@ gantt
     ```
 
 4. **환경 변수 설정**:
-    `secrets.json` 파일을 프로젝트 루트 디렉토리에 생성하고, 아래와 같이 `SECRET_KEY`를 설정합니다.
-    ```json
-    {
-        "SECRET_KEY": "여기에_당신의_시크릿_키를_입력하세요"
-    }
+    `.env` 파일을 프로젝트 루트 디렉토리에 생성하고, 아래와 같이 `SECRET_KEY`를 설정합니다.
+    ```
+    SECRET_KEY: "여기에_당신의_시크릿_키를_입력하세요"
+    DEBUG=True
     ```
 
 5. **가상환경 실행**:
@@ -154,7 +246,12 @@ gantt
     ./commands.sh
     reinstall
 
+    ./commands.sh
+    add_admin(admin 유저 생성)
+
     # 설치 후 가상환경이 deactivate 됩니다.
+    # ./ 세션 내 실행
+    # . `공백` 인스턴스 내 실행
     ./commands.sh
     run
     ```
@@ -178,10 +275,45 @@ gantt
 - django-tree-queries
 
 
+## 폴더 트리
+```
+트리
+```
+
 
 ## 개발 환경 설정
 개발을 시작하기 전에, 다음 도구들이 시스템에 설치되어 있어야 합니다:
 - Python (3.8 이상)
+- Node.js (18.18 이상)
 - pip
 - Git
+
+## 트러블 슈팅
+
+### 1. django-quill-editor custom
+ai 서비스를 위해, 전역 객체에 접근. 한국
+패키지를 뜯기는 그러니까
+docker compose
+
+### 2. django-tailwind docker image 설성
+1에서 뜯은 docker compose로 tailwind도 말려듦
+
+
+### 3. AWS Lightsail instance
+배포를 위해 컨테이너 설정
+docker compose 오케스트레이션
+
+instance로 전환
+
+### 4. Docker login
+
+
+### 5. mix-in Circular import
+앱 전체의 다양한 콘텐츠 유형 간의 상호 참조가 필요한 Like, Bookmark를 코드의 모듈성과 재사용성을 강화하기 위해 우리는 믹스인 기반 접근 방식을 채택했습니다,
+그래서 모든 콘텐츠에 대한 좋아요 및 북마크 상태를 확인하기 위한 로직을 만들고 이걸 content type이랑 object id를 가지고 어디에서나 쓸수 있게 LikeMixin. BookmarkMixin 이라는 이름으로 캡슐화했습니다.
+그런데 이걸 실제 모델 내에서 쓰려니 Circular import 순환참조 문제가 발생하였습니다.
+
+그래서 채택한 방법, 믹스인에서 Django의 ContentType 라이브러리가 가지고 있는 apps.get_model 동적 모델 검색을 사용해서 모델 클래스가 런타임에 모델을 직접 가져오게 해서 순환 종속성을 방지했습니다.
+
+
 

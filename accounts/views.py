@@ -37,6 +37,11 @@ import json
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import DatabaseError
+from django.db import transaction
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class RegisterView(CreateView):
@@ -317,53 +322,53 @@ class CategoryCreateView(CreateView):
 
     def post(self, request, *args, **kwargs):
         try:
-            tree_data = json.loads(request.POST.get("tree"))
-            username = request.POST.get("username")
-            user = CustomUser.objects.get(username=username)
-            created_nodes = []
+            with transaction.atomic():  # 모든 작업을 하나의 트랜잭션으로 묶습니다.
+                tree_data = json.loads(request.POST.get("tree"))
+                username = request.POST.get("username")
+                user = CustomUser.objects.get(username=username)
+                created_nodes = []
 
-            for node in tree_data:
-                parent_id = node.get("parent")
-                if parent_id and parent_id != "#":
-                    if parent_id.isdigit():
-                        parent_id = int(parent_id)
+                for node in tree_data:
+                    parent_id = self.get_parent_id(node)
+
+                    if not node["id"].isdigit():
+                        cat = Category.objects.create(
+                            name=node["text"],
+                            parent_id=parent_id,
+                            author=user,
+                        )
+                        created_nodes.append({"temp_id": node["id"], "new_id": cat.id})
                     else:
-                        parent_id = None
-                else:
-                    parent_id = None
+                        cat, created = Category.objects.update_or_create(
+                            id=int(node["id"]) if node["id"].isdigit() else None,
+                            defaults={
+                                "name": node["text"],
+                                "parent_id": parent_id,
+                                "author": user,
+                            },
+                        )
 
-                if not node["id"].isdigit():
-                    # 임시 id를 가진 노드의 처리
-                    cat = Category.objects.create(
-                        name=node["text"],
-                        parent_id=parent_id,
-                        author=user,
-                    )
-                    created_nodes.append({"temp_id": node["id"], "new_id": cat.id})
-                else:
-                    # 실제 id를 가진 노드의 업데이트 또는 생성
-                    cat, created = Category.objects.update_or_create(
-                        id=int(node["id"]) if node["id"].isdigit() else None,
-                        defaults={
-                            "name": node["text"],
-                            "parent_id": parent_id,
-                            "author": user,
-                        },
-                    )
+                return JsonResponse(
+                    {"status": "success", "created_nodes": created_nodes}
+                )
 
-            return JsonResponse({"status": "success", "created_nodes": created_nodes})
         except ValidationError as e:
-            # 모델 유효성 검증 오류 처리
+            logger.error("Validation Error: %s", e)
             return JsonResponse({"status": "error", "message": str(e)}, status=400)
-        except DatabaseError as e:
-            # 데이터베이스 오류 처리
-            return JsonResponse({"status": "error", "message": str(e)}, status=500)
         except Exception as e:
-            # 그 외 모든 예외 처리
+            logger.error("Unexpected Error: %s", e, exc_info=True)
             return JsonResponse(
                 {"status": "error", "message": "An unexpected error occurred."},
                 status=500,
             )
+
+    def get_parent_id(self, node):
+        # 부모 ID를 추출하는 별도의 메서드를 정의할 수 있습니다.
+        parent_id = node.get("parent")
+        if parent_id and parent_id != "#":
+            if parent_id.isdigit():
+                return int(parent_id)
+        return None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
