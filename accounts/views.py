@@ -131,12 +131,8 @@ class PublicProfileView(DetailView):
     slug_url_kwarg = "slug"
 
     def get_profile_image_url(self, user):
-        """
-        사용자의 프로필 이미지 URL을 반환합니다.
-        프로필 이미지가 없는 경우, 기본 이미지 URL을 반환합니다.
-        """
         if user.profile_picture:
-            return self.request.build_absolute_uri(user.profile_picture.image.url)
+            return self.request.build_absolute_uri(user.profile_picture.url)
         else:
             return None
 
