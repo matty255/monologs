@@ -57,7 +57,7 @@
     var inputElm = document.querySelector('.tagify-field');
     var tagsList = {{tags_list | safe}}
     var postTags = {{ post_tags | safe }};
-console.log(tagsList)
+
 // This injects your tags_list into the JS as an array.
     // Initialize Tagify on the tags input field
     var tagify = new Tagify(inputElm, {

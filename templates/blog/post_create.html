@@ -72,10 +72,7 @@
 
     
 
-    console.log(easyQuill.setContents([
-    { insert: 'Hello ' },
-    { insert: 'World!', attributes: { bold: true } }
-  ]))
+
 
   const toolbar = quillInstance.getModule('toolbar').container;
 
@@ -124,12 +121,12 @@ document.getElementById('gptSubmitButton').addEventListener('click', function() 
         };
 
         const apiResponse = await submitDataToApi(requestArray);
-        console.log(apiResponse.choices[0].message.content);
+        // console.log(apiResponse.choices[0].message.content);
 
         easyQuill.setText(apiResponse.choices[0].message.content )
 
         if (text.length <= 2000) {
-          console.log(text);
+         // console.log(text);
         } else {
           console.error("선택된 텍스트가 2000자를 초과합니다.");
         }

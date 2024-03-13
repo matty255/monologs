@@ -22,8 +22,8 @@
               </figure>
               
               <div class="card-body">
-                <a class="card-title">
-                  <h2 href="{% url 'blog_detail' post.pk %}" class="h-12 w-full truncate overflow-hidden hover:overflow-visible">{{ post.title }}</h2>
+                <a class="card-title" href="{% url 'blog_detail' post.pk %}">
+                  <h2  class="h-12 w-full truncate overflow-hidden hover:overflow-visible">{{ post.title }}</h2>
 
                 </a>
                 <p class="h-24 truncate overflow-hidden ">{{ post.summary }}</p>
