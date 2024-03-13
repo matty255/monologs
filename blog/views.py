@@ -132,7 +132,9 @@ class PostListView(Custom404Mixin, ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        return queryset.prefetch_related("tags")
+        return queryset.prefetch_related("tags").order_by(
+            "-created_at"
+        )  # Assuming 'created_at' is your datetime field
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

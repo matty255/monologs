@@ -23,10 +23,12 @@
               </figure>
               
               <div class="card-body">
-                <h2 class="card-title">
-                  <a href="{% url 'blog_detail' post.pk %}">{{ post.title }}</a>
+                <a class="card-title">
+                  <h2 href="{% url 'blog_detail' post.pk %}" class="h-12 w-full truncate overflow-hidden hover:overflow-visible">{{ post.title }}</h2>
+
+                </a>
                 </h2>
-                <p>{{ post.summary }}</p>
+                <p class="h-24 truncate overflow-hidden ">{{ post.summary }}</p>
                 <div class="card-actions justify-end">
                   <p>Likes: {{ post.like_count }}</p>
                   {% for tag in post.tags.all %}
@@ -37,6 +39,23 @@
             </div>
             {% endfor %}
           </div>
+          {% if posts.paginator.num_pages > 1 %}
+          <div class="mt-6 flex justify-center">
+            <div class="btn-group">
+              {% if posts.has_previous %}
+                <a href="?page=1" class="btn">First</a>
+                <a href="?page={{ posts.previous_page_number }}" class="btn">Prev</a>
+              {% endif %}
+          
+              <span class="btn btn-active">Page {{ posts.number }} of {{ posts.paginator.num_pages }}</span>
+          
+              {% if posts.has_next %}
+                <a href="?page={{ posts.next_page_number }}" class="btn">Next</a>
+                <a href="?page={{ posts.paginator.num_pages }}" class="btn">Last</a>
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
           
 </section>
 
