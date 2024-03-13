@@ -1,14 +1,46 @@
 <!-- search_results.html -->
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block content %}
     <h2>검색 결과</h2>
+    <section class=" bg-clear-white sticky top-0">
     {% for post in posts %}
-        <div>
-            <h3><a href="{% url 'post_detail' post.pk %}">{{ post.title }}</a></h3>
-            <p>{{ post.summary }}</p>
-        </div>
+    
+        <h2 class="">Search List</h1>
+          
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {% for post in posts %}
+            <div class="card bg-base-100 shadow-xl">
+              <figure class="w-full h-64 overflow-hidden bg-gray-100">
+                {% if post.thumbnail %}
+                <img src="{{ post.thumbnail.url }}" alt="thumbnail" class="w-full h-full object-cover object-center"/>
+                {% else %}
+                <img src="{% static 'images/banners/background.webp' %}" alt="No thumbnail" class="w-full h-full object-cover object-center"/>
+                {% endif %}
+              </figure>
+              
+              <div class="card-body">
+                <h2 class="card-title">
+                  <a href="{% url 'blog_detail' post.pk %}">{{ post.title }}</a>
+                </h2>
+                <p>{{ post.summary }}</p>
+                <div class="card-actions justify-end">
+                  <p>Likes: {{ post.like_count }}</p>
+
+                  {% for tag in post.tags.all %}
+                  <a href="{% url 'search' %}?tag={{ tag.name }}" class="px-2 bg-amber-300 text-neutral-700 rounded-3xl hover:bg-amber-400 hover:text-neutral-900">{{ tag.name }}</a>
+                {% endfor %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          
+
     {% empty %}
         <p>검색 결과가 없습니다.</p>
     {% endfor %}
+</section>
 {% endblock %}

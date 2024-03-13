@@ -12,3 +12,4 @@ function navigateToDeletePage(userId) {
     const deleteUrl = `/accounts/delete/${userId}/`;
     window.location.href = deleteUrl;
 }
+

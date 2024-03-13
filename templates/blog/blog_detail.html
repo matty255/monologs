@@ -2,82 +2,116 @@
 
 {% load static %}
 {% block content %}
+<style>
+  .main-section {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  .main-section.not-max-w-2xl {
+    transform: scale(1.02);
+    opacity: 0.98; 
+  }
+
+  .main-section.max-w-2xl {
+    transform: scale(1); 
+    opacity: 1; 
+</style>
 
 <section class=" bg-clear-white flex flex-col justify-center items-center">
   
 
+
+
+  
+  <div class="w-full z-10 sticky top-0" 
   {% if post.thumbnail %}
-  <div class="sticky top-0 flex justify-around items-center w-full h-24 bg-cover bg-center" 
-    style="background-image: url('{{ post.thumbnail.url }}');">
-    <!-- 내용 -->
-  </div>
-{% else %}
-  <div class="sticky top-0 flex justify-around items-center w-full h-24 bg-cover bg-center" 
-    style="background-image: url('{% static "images/banners/background.webp" %}');">
-    <!-- 내용 -->
-  </div>
-{% endif %}
+      style="background-image: url('{{ post.thumbnail.url }}'); backdrop-filter: blur(104px);"
+  {% else %}
+      style="background-image: url('{% static "images/banners/background.webp" %}'); backdrop-filter: blur(104px);"
+  {% endif %}>
+  <div class="mx-auto max-w-2xl justify-between flex w-full">
 
-  <div class="sticky top-0 flex justify-around items-center w-full h-24 bg-cover bg-center" 
-    style="background-image: url('{{ background_image_url }}');">
-    <!-- 내용 -->
-  </div>
-
-    <div>
-    <div class="flex justify-center items-center w-24 h-10 bg-black bg-opacity-50 rounded-full">
+   <div> 
+    <a href="{% url 'public_profile' slug=post.author.username %}" class="font-Happiness text-lg hover:underline underline-offset-2 ">
       
-      <a href="{% url 'post_update' pk=post.pk %}">Update</a>
-   
-    </div>
-    <div class="flex justify-center items-center w-24 h-10 bg-black bg-opacity-50 rounded-full">
- 
-      {% include 'blog/include/post_confirm_delete.html' %}
-      {% comment %} <a href="{% url 'post_delete' pk=post.pk %}">Delete</a> {% endcomment %}
-    </div>
-  </div>
-  <p>Posted by
-    {% if author_profile_picture_url %}
-        <img src="{{ author_profile_picture_url }}" alt="{{ post.author.username }}'s profile picture" style="width: 50px; height: 50px; border-radius: 50%;">
-    {% else %}
-    <img src="{% static 'images/logos/picture-default.webp' %}" class="h-16 rounded-full" alt="Profile Picture">
-    {% endif %}
-    {{ post.author }}
-    <br />
-    on
-    {{ post.updated_at }}
-</p>
+      Posted by
+      {% if author_profile_picture_url %}
+          <img src="{{ author_profile_picture_url }}" alt="{{ post.author.username }}'s profile picture" style="width: 50px; height: 50px; border-radius: 50%;">
+      {% else %}
+      <img src="{% static 'images/logos/picture-default.webp' %}" class="h-16 rounded-full" alt="Profile Picture">
+      {% endif %}
+    <strong class="text-3xl">  {{ post.author }} </strong>
 
-{% if user.is_authenticated %}
-    {% if not is_following %}
-        <form action="{% url 'follow_toggle' post.author.id %}" method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Follow</button>
-        </form>
+      on
+      {{ post.updated_at }}
+    </a>
+ 
+
+  </div>
+
+  <div class="flex ">
+
+    {% if user.is_authenticated %}
+    {% if user == post.author %}
+    <a href="{% url 'post_update' pk=post.pk %}" class="flex justify-center items-center w-24 h-10 bg-black  rounded-lg">
+      Update
+    </a>
+    {% endif %}
+    {% endif %}
+
+    {% include 'blog/include/post_confirm_delete.html' %}
+
+    {% if user.is_authenticated %}
+    {% if user != post.author %}
+        {% if not is_following %}
+            <form action="{% url 'follow_toggle' post.author.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="flex justify-center items-center w-24 h-10 bg-black  rounded-lg">Follow</button>
+            </form>
+        {% else %}
+            <form action="{% url 'follow_toggle' post.author.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn flex justify-center items-center w-24 h-10 bg-black  rounded-lg">Unfollow</button>
+            </form>
+        {% endif %}
     {% else %}
-        <form action="{% url 'follow_toggle' post.author.id %}" method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-secondary">Unfollow</button>
-        </form>
+        <a href="{% url 'private_profile'  %}" class="flex justify-center items-center w-24 h-10 bg-black  rounded-lg" disabled>프로필 수정</a>
     {% endif %}
 {% endif %}
-    <h2 class="text-white text-3xl font-semibold bg-black bg-opacity-50 p-4 rounded">{{ post.title }}</h2>
-
+  </div>
 </div>
+  </div>
 
 
-
-  <div class="prose-xl px-10 bg-gray-500">{{ post.content.html|safe }}</div>
+<section class="main-section w-full max-w-2xl pt-10 bg-neutral-800 mt-24 sticky top-0 z-10">
+  <div id="sentinel" class="h-1"></div> <!-- IntersectionObserver를 위한 sentinel -->
   <div>
+
+  <h2 class="main-title text-white text-3xl font-semibold sticky top-0 p-4 rounded bg-neutral-800">{{ post.title }}</h2>
+  <div class="flex">
     <p>Posted by
       {{ post.author }}
       on
       {{ post.updated_at }}</p>
+      {% if user.is_authenticated %}
+      {% if user == post.author %}
     <a href="{% url 'post_update' pk=post.pk %}">Edit</a>
+    {% endif %}
+    {% endif %}
 
-    {% for tag in tags %}
-      <span>{{ tag.name }}</span>
+    
+  </div>
+  {% for tag in tags %}
+  <a href="{% url 'search' %}?tag={{ tag.name }}" class="px-2 bg-amber-300 text-neutral-700 rounded-3xl hover:bg-amber-400 hover:text-neutral-900">{{ tag.name }}</a>
     {% endfor %}
   </div>
+  <div class="prose-xl px-10  min-h-screen pt-24">
+    
+    {{ post.content.html|safe }}
+  
+  </div>
+
+
 
   <div class="post-actions">
     <!-- Like Button -->
@@ -110,14 +144,47 @@
   </div>
 
 
-
-<!-- 댓글 목록을 포함 -->
-{% include 'blog/include/comment_list.html' with comments=comments user=request.user %}
+  {% include 'blog/include/comment_list.html' with comments=comments user=request.user %}
     
 {% if user.is_authenticated %}
 {% include 'blog/include/comment_form.html' with form=comment_form %}
 {% else %}
 <p>댓글을 남기려면 <a href="{% url 'login' %}">로그인</a> 해주세요.</p>
 {% endif %}
+  </section>
+
+
+
+
+
+<!-- 댓글 목록을 포함 -->
+
 </section>
+
+<script>
+const section = document.querySelector('.main-section');
+const title = document.querySelector('.main-title');
+const sentinel = document.getElementById('sentinel');
+const observer = new IntersectionObserver(
+  ([entry]) => {
+    if (!entry.isIntersecting) {
+      // 더미 요소(sentinel)가 뷰포트에서 사라지면 (즉, 섹션이 상단에 도달했을 때)
+      section.classList.remove('max-w-2xl');
+
+    } else {
+      // 더미 요소(sentinel)가 뷰포트에 나타나면 (즉, 섹션이 아직 상단에 도달하지 않았을 때)
+     
+      section.classList.add('max-w-2xl');
+    }
+  },
+  {
+    root: null,
+    threshold: 0 // 화면에 나타나거나 사라질 때 즉시 감지
+  }
+);
+
+observer.observe(sentinel);
+
+
+  </script>
 {% endblock %}

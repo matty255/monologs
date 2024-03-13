@@ -2,13 +2,12 @@ version: '3.7'
 
 services:
   web:
-    build: .
+    image: roki7/django-app:web-latest
     env_file:
       - .env
     command: >
       sh -c "python manage.py collectstatic --no-input && python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - .:/app
       - static_volume:/app/static
     ports:
       - "8000:8000"
@@ -17,10 +16,9 @@ services:
       - tailwind
 
   tailwind:
-    build: .
+    image: roki7/django-app:web-latest
     command: python manage.py tailwind start
     volumes:
-      - .:/app
       - static_volume:/app/static
     tty: true
     restart: unless-stopped

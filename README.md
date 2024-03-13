@@ -3,6 +3,8 @@
 
 ## 프로젝트 개요(제작 중)
 
+http://43.200.237.70:8000/
+
 - Django Monolithic Blog Project
 `monologs`는 사용자가 블로그 포스트를 작성하고, 로그인 및 회원가입 기능을 통해 사용자 인증을 관리하는 동시에, 게시글을 올릴 수 있는 게시판을 제공하는 웹 애플리케이션입니다.
 
@@ -15,7 +17,7 @@
 - **AI 글 작성**:
 - **북마크**:
 - **like**:
-- ****:
+- **카테고리 편집**:
 
 
 ## ERD
@@ -23,9 +25,13 @@
 
 - tags 중계 테이블
 - GenericForeignKey를 사용해서 post와 comment에 like와 bookmark 추가(클래스 상속으로 변경?)
+- 
 
+```
+http://43.200.237.70:8000/
 
-
+docker-compose -f docker-compose.dev.yml up -d --build 
+```
 ## WBS
 
 ```mermaid

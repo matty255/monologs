@@ -29,7 +29,9 @@
                 <p>{{ post.summary }}</p>
                 <div class="card-actions justify-end">
                   <p>Likes: {{ post.like_count }}</p>
-                  <div class="badge badge-outline">Products</div>
+                  {% for tag in post.tags.all %}
+                  <a href="{% url 'search' %}?tag={{ tag.name }}" class="px-2 bg-amber-300 text-neutral-700 rounded-3xl hover:bg-amber-400 hover:text-neutral-900">{{ tag.name }}</a>
+                {% endfor %}
                 </div>
               </div>
             </div>

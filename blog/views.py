@@ -115,6 +115,13 @@ class SearchView(Custom404Mixin, ListView):
         )
         return object_list
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["query"] = self.request.GET.get("q", "")
+        context["search_fields"] = self.request.GET.getlist("fields", [])
+        context["tags"] = self.request.GET.get("tag", "")
+        return context
+
 
 class PostListView(Custom404Mixin, ListView):
     model = Post
@@ -122,11 +129,15 @@ class PostListView(Custom404Mixin, ListView):
     context_object_name = "posts"
     paginate_by = 10
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.prefetch_related("tags")
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["query"] = self.request.GET.get("q", "")
         context["search_fields"] = self.request.GET.getlist("fields", [])
-        context["tag"] = self.request.GET.get("tag", "")
+        context["tags"] = self.request.GET.get("tag", "")
         return context
 
 
