@@ -1,4 +1,3 @@
-
 # Monologs
 
 ## 프로젝트 개요
@@ -6,7 +5,7 @@
 배포 주소 : http://43.200.237.70:8000/
 
 - Django Monolithic Blog Project
-`monologs`는 사용자가 블로그 포스트를 작성하고, 로그인 및 회원가입 기능을 통해 사용자 인증을 관리하는 동시에, 게시글을 올릴 수 있는 게시판을 제공하는 웹 애플리케이션입니다. AI가 초안 작성을 도와주니다.
+  `monologs`는 사용자가 블로그 포스트를 작성하고, 로그인 및 회원가입 기능을 통해 사용자 인증을 관리하는 동시에, 게시글을 올릴 수 있는 게시판을 제공하는 웹 애플리케이션입니다. AI가 초안 작성을 도와주니다.
 
 ## 편의 기능
 
@@ -43,8 +42,6 @@
 - **태그 필터 기능**
   사용자는 자신이 선호하는 태그에 따라 포스트를 필터링할 수 있는 검색 페이지를 이용할 수 있습니다. 이 기능을 통해 관심 있는 주제의 글만을 모아볼 수 있으며, 사용자의 취향과 관심사에 맞춘 콘텐츠를 쉽게 발견할 수 있습니다.
 
-
-
 ## 효율성 향상 및 최적화
 
 - **사이트 내 이미지 WebP 변환기**
@@ -54,7 +51,7 @@
   보안과 성능을 동시에 고려하여, 업로드되는 이미지들(썸네일, 프로필 사진)은 자동으로 WebP 형식으로 변환되며, 파일명도 변경됩니다. 이 과정은 서버 자원의 효율적 사용과 빠른 콘텐츠 전송을 목적으로 합니다.
 
 - **Quill 에디터 내에서의 이미지 압축**
-  Webp을 별도의 설정 없이 일괄변환하면 동적인 이미지를 얻을 수 없기 때문에, Quill 에디터 내에 업로드되는 이미지는 Webp 변환을 하지 않고, 다양한 확장자의 이미지를 지원하게 두었습니다. 다만, 이미지 용량을 제한하고 quill-image-compress로 압축을 합니다. 
+  Webp을 별도의 설정 없이 일괄변환하면 동적인 이미지를 얻을 수 없기 때문에, Quill 에디터 내에 업로드되는 이미지는 Webp 변환을 하지 않고, 다양한 확장자의 이미지를 지원하게 두었습니다. 다만, 이미지 용량을 제한하고 quill-image-compress로 압축을 합니다.
 
 - **템플릿 내 컴포넌트 분리**
   재사용 가능한 컴포넌트 단위로 코드를 분리하여 `include` 폴더에 저장합니다. 코드의 가독성을 높이고, 개발자가 유지보수를 보다 쉽게 할 수 있도록 했습니다.
@@ -67,18 +64,15 @@
 
 - **Docker Compose를 이용한 컨테이너 오케스트레이션**
   Docker Compose를 활용한 컨테이너화는 복수의 서비스가 결합된 애플리케이션을 효율적으로 관리하고 배포할 수 있는 강력한 방법입니다. 본 프로젝트에서는 Django 애플리케이션과 Tailwind CSS를 포함하는 독립적인 환경을 단일 컨테이너 내에서 구성하고 관리합니다. 이러한 컨테이너화는 배포 과정을 대폭 간소화하며, DockerHub를 통한 공유는 프로젝트의 재사용성과 확장성을 높입니다.
- 
 
 - **AWS Lightsail을 통한 배포**
-  DockerHub와 AWS Lightsail을 연동하여 애플리케이션을 배포했니다. 이 방법은 효율적이며 비용 효과적인 서버 관리를 가능하게 합니다. 아직은 무료이니까요. 단, 정보수집의 부족으로 nginx가 설정되어 있지 않기에 현재 HTTPS가 아닌 HTTP를 사용하고 있어 보안상 위험이 있습니다. 테스트 배포는 내일 중지 됩니다. 
-
+  DockerHub와 AWS Lightsail을 연동하여 애플리케이션을 배포했니다. 이 방법은 효율적이며 비용 효과적인 서버 관리를 가능하게 합니다. 아직은 무료이니까요. 단, 정보수집의 부족으로 nginx가 설정되어 있지 않기에 현재 HTTPS가 아닌 HTTP를 사용하고 있어 보안상 위험이 있습니다. 테스트 배포는 내일 중지 됩니다.
 
 ## 엔티티 관계 다이어그램(ERD)
 
 ![데이터베이스 ERD](./static/images/readme/erd-final-final.webp)
 
 - **Post_Tags 중계 테이블**을 사용하여 `CustomUser`와 `Tag` 사이의 다대다(m:n) 관계를 설정합니다. 이 구조는 한 게시물이 여러 태그를 가질 수 있으며, 한 태그가 여러 게시물에 할당될 수 있음을 나타냅니다.
-  
 - **GenericForeignKey**를 활용하여 `Post`와 `Comment`에 `Like`와 `Bookmark` 기능을 추가합니다. 이 기능들은 Mixin을 통해 재사용 가능하게 구현되어, 코드의 재사용성과 확장성을 높이며 다형성을 활용한 관계 설정을 가능하게 합니다.
 
 - `Comment`의 삭제는 실제 인스턴스를 삭제하는 대신 내용을 오버라이드하고, 이를 클라이언트 측에서 처리하여 사용자에게 삭제된 것처럼 보이게 합니다. 이 방법은 데이터의 무결성을 유지하며, 필요시 복구할 수 있는 가능성을 열어둡니다.
@@ -86,9 +80,8 @@
 - **CustomUser 모델의 profile_picture**는 이미지 크롭 기능과 연동되어 있으며, `OneToOneField`를 사용하여 사용자당 하나의 프로필 사진만을 가지도록 설정합니다. 이 관계는 데이터베이스 설계에서 1:1 관계를 나타내며, 사용자 프로필과 밀접하게 연결된 데이터의 일관성을 보장합니다.
 
 - `Category`는 `CustomUser`와 다대일(N:1) 관계로 설정되어 있어, 한 명의 사용자가 여러 카테고리를 생성할 수 있습니다. 반면, `Post`는 `Category`와 다대일(N:1) 관계에 있어, 여러 게시물이 하나의 카테고리에 속할 수 있음을 나타냅니다. 이러한 구조는 웹 애플리케이션에서 컨텐츠의 분류 및 조직화를 용이하게 합니다.
-- 
+-
 - `Like`와 `Bookmark`모델은 ERD에서 그 관게가 잘 나타나지 않는데, 어떤 모델의 인스턴스에도 '좋아요'나 '북마크'를 할 수 있는 범용성과 다형성을 지원하기 위해 이렇게 만들었습니다. 여러 모델에 걸쳐 재사용 가능해야 하기 때문에 Django의 `ContentType` 프레임워크를 사용하여, `mixin`으로 사용합니다.
-
 
 ## 폴더 트리
 
@@ -230,9 +223,8 @@
 ┣ 📜requirements.txt
 ```
 
-
-
 # 배포 방법
+
 ```
 http://43.200.237.70:8000/
 
@@ -244,12 +236,13 @@ docker pull 유저이름/django-app:web-latest
 docker-compose up -d
 
 # 로컬에서 도커 빌드 시
-docker-compose up -d 
+docker-compose up -d
 docker build -t 유저이름/django-app:web-latest .
 
 docker push 유저이름/django-app:web-latest
 
 ```
+
 ## WBS
 
 ```mermaid
@@ -261,7 +254,7 @@ gantt
     WBS 생성              :done,    wbs, 2024-03-02, 1d
     요구사항 분석          :done,    req, after wbs, 2d
     기획                  :done,    req, after wbs, 1d
-    
+
     section 설계
     ERD 생성              :done,    erd, 2024-03-03, 1d
     모델 관계 설정         :done     uides, after proto, 2d
@@ -270,7 +263,7 @@ gantt
     URL 디자인            :done,    urldes, 2024-03-05, 1d
     CRUD 구현             :done,    crud, after urldes, 2d
 
-    section UI 제작 및 추가 기능 
+    section UI 제작 및 추가 기능
     백엔드 추가 기능           :done         backend, 2024-03-08, 3d
     피그마 디자인             :done     backend, 2024-03-08, 3d
     프론트엔드 기능            :done        backend, 2024-03-08, 3d
@@ -278,7 +271,7 @@ gantt
     section 테스트 & 배포
     테스팅                :done         test, 2024-03-10, 2d
     배포                  :done       deploy, after test, 1d
-    
+
     section 종료
     프로젝트 종료          :done       end, 2024-03-11, 2d
 ```
@@ -286,78 +279,88 @@ gantt
 ## figma
 
 - 와이어프레임(제작 중)
-[피그마](https://www.figma.com/files/project/212207199/monologs?fuid=1012359410667987596)
+  [피그마](https://www.figma.com/files/project/212207199/monologs?fuid=1012359410667987596)
 
 - 디자인
 
 ## 설치 방법
+
 프로젝트를 설치하고 실행하기 위한 단계별 지침은 다음과 같습니다.
 
 1. **프로젝트 클론**:
-    ```
-    git clone
-    cd monologs
-    ```
+
+   ```
+   git clone
+   cd monologs
+   ```
 
 2. **가상 환경 생성 및 활성화**:
-    ```
-    python -m venv venv
-    # custom commands는 7번으로
 
-    source venv/bin/activate
+   ```
+   python -m venv venv
+   # custom commands는 7번으로
 
-    ```
+   source venv/bin/activate
+
+   ```
 
 3. **필요한 패키지 설치**:
-    ```
-    pip install -r requirements.txt
-    ```
+
+   ```
+   pip install -r requirements.txt
+   ```
 
 4. **환경 변수 설정**:
-    `.env` 파일을 프로젝트 루트 디렉토리에 생성하고, 아래와 같이 `SECRET_KEY`를 설정합니다.
-    ```
-    SECRET_KEY: "여기에_당신의_시크릿_키를_입력하세요"
-    DEBUG=True
-    ```
+   `.env` 파일을 프로젝트 루트 디렉토리에 생성하고, 아래와 같이 `SECRET_KEY`를 설정합니다.
+
+   ```
+   SECRET_KEY: "여기에_당신의_시크릿_키를_입력하세요"
+   DEBUG=True
+   ```
 
 5. **가상환경 실행**:
-    ```
-    # git bash
-    source ./venv/Scripts/activate
-    ```
 
-    ```
-    # powerShall
-    ./venv/Scripts/activate
-    ```
+   ```
+   # git bash
+   source ./venv/Scripts/activate
+   ```
+
+   ```
+   # powerShall
+   ./venv/Scripts/activate
+   ```
 
 6. **기본 커맨드(PowerShell)**:
-    ```
-   python manage.py runserver
-    ```
-    **다른 터미널에서 동시 실행**
-    ```
-    python manage.py tailwind start
-    ```
 
+   ```
+   python manage.py runserver
+   ```
+
+   **다른 터미널에서 동시 실행**
+
+   ```
+   python manage.py tailwind start
+   ```
 
 7. **custom commands(Git Bash)**:
-    ```
-    ./commands.sh
-    reinstall
 
-    ./commands.sh
-    add_admin(admin 유저 생성)
+   ```
+   ./commands.sh
+   reinstall
 
-    # 설치 후 가상환경이 deactivate 됩니다.
-    # ./ 세션 내 실행
-    # . `공백` 인스턴스 내 실행
-    ./commands.sh
-    run
-    ```
+   ./commands.sh
+   add_admin(admin 유저 생성)
+
+   # 설치 후 가상환경이 deactivate 됩니다.
+   # ./ 세션 내 실행
+   # . `공백` 인스턴스 내 실행
+   ./commands.sh
+   run
+   ```
 
 ## 사용된 기술
-- Django 
+
+- Django
 - Pillow
 - Django-quill-editor
 - Django-image-cropping
@@ -366,23 +369,79 @@ gantt
 - Django-ajax_select
 - Tom Select
 - daisyUI
-- google-auth 
-- google-auth-oauthlib 
-- requests 
+- google-auth
+- google-auth-oauthlib
+- requests
 - google-analytics-data
 - django-tree-queries
 - jsTree
 - django-environ
 
-
 ## 테스트 주소
+
 ```
+http://43.200.237.70:8000/
+
+http://43.200.237.70:8000/blog/ 블로그 리스트
+http://43.200.237.70:8000/blog/1/ 블로그 디테일
+
+http://43.200.237.70:8000/blog/search/?tag=Cookie  태그검색
+http://43.200.237.70:8000/blog/search/?q=%EC%BB%A8%ED%85%90%EC%B8%A0  단어검색
+
+
+
+http://43.200.237.70:8000/accounts/register/ 회원가입
+http://43.200.237.70:8000/accounts/login/  로그인
+
+로그인 필요
+http://43.200.237.70:8000/blog/create/  글쓰기
+http://43.200.237.70:8000/accounts/profile/ 프라이빗 프로필
+http://43.200.237.70:8000/accounts/category/create/ 카테고리 생성
+http://43.200.237.70:8000/@[username]/  퍼블릭 프로필(블로그)
+
 
 ```
 
+## 명세
+
+| App      | URL Pattern                    | View                       | Description                     |
+| -------- | ------------------------------ | -------------------------- | ------------------------------- |
+| config   | admin/                         | admin.site.urls            | Django 관리자 인터페이스        |
+| config   | ""                             | main.urls                  | 메인 앱의 URL 패턴              |
+| config   | blog/                          | blog.urls                  | 블로그 앱의 URL 패턴            |
+| config   | accounts/                      | accounts.urls              | 계정 앱의 URL 패턴              |
+| config   | **reload**/                    | django_browser_reload.urls | Django 브라우저 리로드 URL 패턴 |
+| config   | ajax_select/                   | ajax_select.urls           | Ajax 선택 URL 패턴              |
+| main     | ""                             | IndexView                  | 메인 인덱스 페이지              |
+| main     | about/                         | AboutView                  | 정보 페이지                     |
+| main     | download_image/<int:pk>/       | ConvertAndDownloadView     | 이미지 변환 및 다운로드         |
+| main     | @<str:username>/               | PublicProfileView          | 공개 프로필 페이지              |
+| blog     | ""                             | PostListView               | 블로그 게시물 목록              |
+| blog     | search/                        | SearchView                 | 블로그 검색                     |
+| blog     | <int:pk>/                      | PostDetailView             | 블로그 게시물 상세              |
+| blog     | create/                        | PostCreateView             | 블로그 게시물 생성              |
+| blog     | update/<int:pk>/               | PostUpdateView             | 블로그 게시물 업데이트          |
+| blog     | delete/<int:pk>/               | PostDeleteView             | 블로그 게시물 삭제              |
+| blog     | post/<int:pk>/toggle_like/     | ToggleLikeView             | 게시물 좋아요 토글              |
+| blog     | post/<int:pk>/toggle_bookmark/ | ToggleBookmarkView         | 게시물 북마크 토글              |
+| blog     | post/<int:post_pk>/comment/    | CommentCreateView          | 게시물에 댓글 생성              |
+| blog     | comment/<int:pk>/update/       | CommentUpdateView          | 댓글 업데이트                   |
+| blog     | comment/<int:pk>/delete/       | CommentDeleteView          | 댓글 삭제                       |
+| accounts | register/                      | RegisterView               | 사용자 등록                     |
+| accounts | login/                         | CustomLoginView            | 사용자 로그인                   |
+| accounts | logout/                        | CustomLogoutView           | 사용자 로그아웃                 |
+| accounts | profile/                       | PrivateProfileView         | 개인 프로필 페이지              |
+| accounts | crop-image/                    | UploadAndCropView          | 이미지 업로드 및 크롭           |
+| accounts | profile/delete_image/          | ProfileImageDeleteView     | 프로필 이미지 삭제              |
+| accounts | profile/<int:pk>/follow/       | FollowToggleView           | 사용자 팔로우 토글              |
+| accounts | follow_list/<int:id>/          | UserFollowingListView      | 사용자 팔로우 목록              |
+| accounts | delete/<int:pk>/               | UserDeleteView             | 사용자 삭제                     |
+| accounts | category/create/               | CategoryCreateView         | 카테고리 생성                   |
 
 ## 개발 환경 설정
+
 개발을 시작하기 전에, 다음 도구들이 시스템에 설치되어 있어야 합니다:
+
 - Python (3.8 이상)
 - Node.js (18.18 이상)
 - pip
@@ -391,15 +450,17 @@ gantt
 ## 트러블 슈팅
 
 ### 1. django-quill-editor custom
+
 ai 서비스를 위해, 전역 객체에 접근. 한국
 패키지를 뜯기는 그러니까
 docker compose
 
 ### 2. django-tailwind docker image 설성
+
 1에서 뜯은 docker compose로 tailwind도 말려듦
 
-
 ### 3. AWS Lightsail instance
+
 배포를 위해 컨테이너 설정
 docker compose 오케스트레이션
 
@@ -407,13 +468,10 @@ instance로 전환
 
 ### 4. Docker login
 
-
 ### 5. mix-in Circular import
+
 앱 전체의 다양한 콘텐츠 유형 간의 상호 참조가 필요한 Like, Bookmark를 코드의 모듈성과 재사용성을 강화하기 위해 우리는 믹스인 기반 접근 방식을 채택했습니다,
 그래서 모든 콘텐츠에 대한 좋아요 및 북마크 상태를 확인하기 위한 로직을 만들고 이걸 content type이랑 object id를 가지고 어디에서나 쓸수 있게 LikeMixin. BookmarkMixin 이라는 이름으로 캡슐화했습니다.
 그런데 이걸 실제 모델 내에서 쓰려니 Circular import 순환참조 문제가 발생하였습니다.
 
 그래서 채택한 방법, 믹스인에서 Django의 ContentType 라이브러리가 가지고 있는 apps.get_model 동적 모델 검색을 사용해서 모델 클래스가 런타임에 모델을 직접 가져오게 해서 순환 종속성을 방지했습니다.
-
-
-
