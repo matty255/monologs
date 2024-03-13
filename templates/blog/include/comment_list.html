@@ -3,17 +3,19 @@
 {% for comment in comments %}
   
 {% if not comment.is_deleted %}
-<a href="{% url 'public_profile' slug=comment.author %}" class="group font-Happiness text-lg hover:underline underline-offset-2 text-white">
+<div class="pl-4">
+<a href="{% url 'public_profile' slug=comment.author %}" class="group  pl-4 font-Happiness text-lg hover:underline underline-offset-2 text-white">
   {{ comment.author }}
   {% if comment.author_profile_picture_url %}
-      <img src="{{ comment.author_profile_picture_url }}" alt="{{ comment.author }}'s profile picture" class="rounded-full h-12 w-12 group-hover:ring-2 group-hover:ring-offset-2 group-hover:ring-white">
+      <img src="{{ comment.author_profile_picture_url }}" alt="{{ comment.author }}'s profile picture" class="rounded-full h-12 w-12 group-hover:ring-2 group-hover:ring-offset-2 group-hover:ring-white ">
   {% else %}
       <img src="{% static 'images/logos/picture-default.webp' %}" class="rounded-full h-12 w-12 group-hover:ring-1 group-hover:ring-offset-2 group-hover:ring-white" alt="Default profile picture">
   {% endif %}
 </a>
+</div>
 {% endif %}
 
-<p class="pb-10">{{ comment.content }}</p>
+<p class="pb-10 pl-4">{{ comment.content }}</p>
 {% if user.is_authenticated %}
   
   
@@ -72,7 +74,7 @@
 
       {% for reply in comment.replies_list %}
 
-        <div class="reply pl-4 border-l-2 border-gray-200">
+        <div class="reply ml-10 pl-4 border-l-2 border-gray-200">
           {% if not reply.is_deleted %}
           <a href="{% url 'public_profile' slug=reply.author %}" class="group font-Happiness text-lg hover:underline underline-offset-2 text-white">
             {{ reply.author }}

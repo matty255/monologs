@@ -1,4 +1,4 @@
-<h1>Following Users</h1>
+{% comment %} <h1>Following Users</h1>
 <ul>
   {% for follow in following_users %}
     <li><a href="{% url 'public_profile' follow.following.username %}">{{ follow.following.username }}</a></li>
@@ -13,4 +13,33 @@
   {% empty %}
     <li>You have no followers yet</li>
   {% endfor %}
+</ul> {% endcomment %}
+
+<h2 class="w-full">팔로잉</h2>
+<ul class="w-full flex flex-col justify-center items-start">
+{% for follow in following_users %}
+<li class="w-16 flex flex-col items-center justify-center bg-slate-500 rounded-xl">
+  <a href="{% url 'public_profile' follow.following.username %}">
+  <img class="h-16 w-16 rounded-full mx-auto"
+  src={{ follow.following.profile_picture.url }}
+  alt="profile">
+@{{ follow.following.username }}</a></li>
+  {% empty %}
+    <li>아직 어떤 유저도 팔로우하고 있지 않습니다.</li>
+  {% endfor %}
 </ul>
+
+<h2 class="w-full">팔로워</h2>
+<ul class="w-full flex flex-col justify-center items-start">
+  {% for follow in followers %}
+<li class="w-16 flex flex-col items-center justify-center bg-slate-500 rounded-xl">
+  <a href="{% url 'public_profile' follow.follower.username %}">
+  <img class="h-16 w-16 rounded-full mx-auto"
+  src={{ follow.following.profile_picture.url }}
+  alt="profile">
+@{{ follow.follower.username }}</a></li>
+  {% empty %}
+    <li>아직 {{ profile_user.username }} 님을 팔로우하는 유저가 없습니다.</li>
+  {% endfor %}
+</ul>
+

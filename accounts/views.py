@@ -112,7 +112,7 @@ class UserFollowingListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         user_info = self.kwargs.get("username")
         user = get_object_or_404(CustomUser, username=user_info)
-        return user.following.all()
+        return user.following.all().select_related("profile_picture")
 
 
 class FollowingListView(LoginRequiredMixin, ListView):
