@@ -27,12 +27,6 @@ urlpatterns = [
         ProfileImageDeleteView.as_view(),
         name="profile_image_delete",
     ),
-    path("profile/<slug:slug>/", PublicProfileView.as_view(), name="public_profile"),
-    path(
-        "profile/<slug:slug>/category/<int:category_id>/",
-        PublicProfileView.as_view(),
-        name="public-profile-category",
-    ),
     path("profile/<int:pk>/follow/", FollowToggleView.as_view(), name="follow_toggle"),
     path(
         "follow_list/<int:id>/",
@@ -41,5 +35,4 @@ urlpatterns = [
     ),
     path("delete/<int:pk>/", UserDeleteView.as_view(), name="user_delete"),
     path("category/create/", CategoryCreateView.as_view(), name="category_create"),
-    path("api/user-categories/", UserCategoriesView.as_view(), name="user-categories"),
 ]

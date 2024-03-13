@@ -70,7 +70,7 @@ class PostForm(forms.ModelForm):
         super(PostForm, self).__init__(*args, **kwargs)
         self.fields["content"].widget.attrs.update({"class": "quill-field"})
         if user:
-            # 사용자에 따라 카테고리 쿼리셋을 필터링하고 들여쓰기를 적용합니다.
+
             self.fields["category"].queryset = (
                 Category.objects.with_tree_fields().filter(author=user)
             )

@@ -38,10 +38,6 @@ from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import DatabaseError
 from django.db import transaction
-import logging
-
-
-logger = logging.getLogger(__name__)
 
 
 class RegisterView(CreateView):
@@ -50,14 +46,14 @@ class RegisterView(CreateView):
     template_name = "accounts/register.html"
 
     def form_valid(self, form):
-        user = form.save()
+        user = form.save()  # 사용자를 생성합니다.
         login(self.request, user)
+
+        # 새로운 사용자를 위해 "all" 카테고리를 생성하거나 할당합니다.
+        Category.objects.get_or_create(name="all", defaults={"author": user})
+
         messages.success(self.request, "Registration successful.")
         return redirect(self.success_url)
-
-    def form_invalid(self, form):
-        messages.error(self.request, "Registration failed. Please check the form.")
-        return super().form_invalid(form)
 
 
 class CustomLoginView(LoginView):
@@ -321,58 +317,55 @@ class CategoryCreateView(CreateView):
     success_url = reverse_lazy("category_list")
 
     def post(self, request, *args, **kwargs):
-        try:
-            with transaction.atomic():  # 모든 작업을 하나의 트랜잭션으로 묶습니다.
-                tree_data = json.loads(request.POST.get("tree"))
-                username = request.POST.get("username")
-                user = CustomUser.objects.get(username=username)
-                created_nodes = []
+        tree_data = json.loads(request.POST.get("tree"))
+        user = request.user
 
-                for node in tree_data:
-                    parent_id = self.get_parent_id(node)
+        id_mapping = dict()
 
-                    if not node["id"].isdigit():
-                        cat = Category.objects.create(
-                            name=node["text"],
-                            parent_id=parent_id,
-                            author=user,
-                        )
-                        created_nodes.append({"temp_id": node["id"], "new_id": cat.id})
-                    else:
-                        cat, created = Category.objects.update_or_create(
-                            id=int(node["id"]) if node["id"].isdigit() else None,
-                            defaults={
-                                "name": node["text"],
-                                "parent_id": parent_id,
-                                "author": user,
-                            },
-                        )
+        with transaction.atomic():
+            for node in tree_data:
+                self.process_node(node, None, user, id_mapping)
 
-                return JsonResponse(
-                    {"status": "success", "created_nodes": created_nodes}
-                )
+        created_nodes = [
+            {"temp_id": temp_id, "new_id": real_id}
+            for temp_id, real_id in id_mapping.items()
+        ]
+        return JsonResponse({"status": "success", "created_nodes": created_nodes})
 
-        except ValidationError as e:
-            logger.error("Validation Error: %s", e)
-            return JsonResponse({"status": "error", "message": str(e)}, status=400)
-        except Exception as e:
-            logger.error("Unexpected Error: %s", e, exc_info=True)
-            return JsonResponse(
-                {"status": "error", "message": "An unexpected error occurred."},
-                status=500,
+    def process_node(self, node, parent_id, user, id_mapping):
+        node_id = node.get("id")
+        if not node_id.isdigit():  # 이 경우 임시 ID로 간주합니다.
+            cat = Category.objects.create(
+                name=node["text"], parent_id=parent_id, author=user
+            )
+            id_mapping[node_id] = cat.id  # 임시 ID와 실제 ID를 매핑합니다.
+            node_id = cat.id
+        else:
+            cat, created = Category.objects.update_or_create(
+                id=int(node_id),
+                defaults={"name": node["text"], "parent_id": parent_id, "author": user},
             )
 
+        # 자식 노드가 있을 경우, 각 자식에 대해 재귀적으로 이 함수를 호출합니다.
+        for child in node.get("children", []):
+            self.process_node(child, cat.id, user, id_mapping)
+
     def get_parent_id(self, node):
-        # 부모 ID를 추출하는 별도의 메서드를 정의할 수 있습니다.
         parent_id = node.get("parent")
+        # 노드와 관련된 모든 부모 ID 로깅
+
         if parent_id and parent_id != "#":
             if parent_id.isdigit():
+
                 return int(parent_id)
-        return None
+            else:
+                return None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        categories = Category.objects.with_tree_fields()
+        categories = Category.objects.with_tree_fields().filter(
+            author=self.request.user
+        )
         # jsTree 형식에 맞게 데이터를 변환합니다.
         context["tree"] = json.dumps(
             [
@@ -403,3 +396,26 @@ class UserCategoriesView(View):
             cache.set(cache_key, categories, 60 * 15)  # 캐시에 15분간 저장
 
         return JsonResponse({"categories": categories})
+
+
+class PublicCategoryTreeView(View):
+    def get(self, request, username, category_id):
+        user = get_object_or_404(CustomUser, username=username)
+        # 특정 카테고리와 그 하위 카테고리만 필터링합니다.
+        category = get_object_or_404(Category, id=category_id, author=user)
+        categories = Category.objects.with_tree_fields().filter(
+            author=user, id=category_id
+        ) | Category.objects.with_tree_fields().filter(author=user, parent=category)
+
+        tree_data = json.dumps(
+            [
+                {
+                    "id": cat.id,
+                    "parent": "#" if cat.parent_id is None else cat.parent_id,
+                    "text": cat.name,
+                }
+                for cat in categories
+            ]
+        )
+
+        return JsonResponse({"tree": tree_data})

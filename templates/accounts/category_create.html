@@ -20,6 +20,7 @@
 <hr>
 
 <h2>Category Tree</h2>
+<button type="button" class="btn btn-danger" id="deselect-node">Deselect Node</button>
 <div id="category-tree"></div>
 
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.11/themes/default/style.min.css" />
@@ -46,16 +47,25 @@
   
     $('#category-tree').on("select_node.jstree", function(e, data) {
       selectedNode = data.node;
-      var hasChildren = data.node.children.length !== 0;
-      $('#add-category').prop('disabled', hasChildren);
+      var depth = $('#category-tree').jstree(true).get_path(selectedNode, false, true).length;
+      var isRootOrDirectChild = depth <= 2;
+      $('#add-category').prop('disabled', !isRootOrDirectChild);
     }).on('deselect_node.jstree', function(e, data) {
+      selectedNode = null;
+      $('#add-category').prop('disabled', !$('#id_name').val().trim());
+    });
+    // 새로운 코드: 노드 선택 취소 버튼의 클릭 이벤트 핸들러
+    $('#deselect-node').on('click', function() {
+      $('#category-tree').jstree('deselect_all');
       selectedNode = null;
       $('#add-category').prop('disabled', !$('#id_name').val().trim());
     });
   
     $('#id_name').on('input', function() {
       var isEmpty = !$(this).val().trim();
-      $('#add-category').prop('disabled', isEmpty || (selectedNode && selectedNode.children.length !== 0));
+      var depth = selectedNode ? $('#category-tree').jstree(true).get_path(selectedNode, false, true).length : 1;
+      var isRootOrDirectChild = depth <= 2;
+      $('#add-category').prop('disabled', isEmpty || (selectedNode && selectedNode.children.length !== 0 && !isRootOrDirectChild));
     });
   
     $('#add-category').on('click', function() {
