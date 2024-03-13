@@ -140,7 +140,9 @@ http://43.200.237.70:8000/
 
 # AWS lightsail 인스턴스에 docker, docker compose 설치
 # SSH로 인스턴스의 루트 경로에 docker-compose.yml 전송
-# docker image를 만들어서 dockerHub에 push 한 후에 인스턴스에서
+# 로컬에서 docker image를 만들어서 dockerHub에 push 한 후에
+
+docker pull 유저이름/django-app:web-latest
 docker-compose up -d
 
 # 로컬에서 도커 빌드 시

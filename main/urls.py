@@ -11,10 +11,15 @@ urlpatterns = [
         ConvertAndDownloadView.as_view(),
         name="convert_and_download",
     ),
-    path("@<str:username>/", PublicProfileView.as_view(), name="public_profile"),
-    path(
-        "@<str:username>/category/<int:category_id>/",
-        PublicCategoryTreeView.as_view(),
-        name="public-profile-category",
-    ),
+    path("@<str:slug>/", PublicProfileView.as_view(), name="public_profile"),
+    # path(
+    #     "@<str:username>/category/",
+    #     PublicCategoryTreeView.as_view(),
+    #     name="public-profile-category",
+    # ),
+    # path(
+    #     "@<str:username>/category/<int:category_id>/",
+    #     PublicCategoryTreeView.as_view(),
+    #     name="public-profile-category",
+    # ),
 ]

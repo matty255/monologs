@@ -7,20 +7,23 @@
   <label for="id_name">Name:</label>
   <input type="text" name="name" class="form-control" id="id_name" required>
 </div>
-<button type="button" class="btn btn-primary" id="add-category" disabled>Add</button>
 
-<form method="post" id="category-form" action="{% url 'category_create' %}">
+
+
+
+<form method="post" id="category-form" action="{% url 'category_create' %}" class="flex gap-x-2 py-3">
   <input type="hidden" name="username" value="{{ request.user.username }}">
 
     {% csrf_token %}
+
+    <button type="button" class="btn flex justify-center items-center w-24 h-10 bg-black disabled:text-neutral-600  rounded-lg disabled:bg-slate-400 disabled:opacity-75" id="add-category" disabled>Add</button>
     
-    <button type="submit" class="btn btn-success" id="save-category">Save</button>
+    <button type="submit" class="btn flex justify-center items-center w-24 h-10 bg-black  rounded-lg" id="save-category">Save</button>
 </form>
 
 <hr>
 
 <h2>Category Tree</h2>
-<button type="button" class="btn btn-danger" id="deselect-node">Deselect Node</button>
 <div id="category-tree"></div>
 
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.11/themes/default/style.min.css" />
@@ -38,22 +41,41 @@
     $('#category-tree').jstree({
       'core': {
         'data': {{ tree | safe }},
-        'check_callback': true
+        'check_callback': true,
+        'themes': {
+          'responsive': false
+      }
       },
       "plugins": ["wholerow"]
     }).on('loaded.jstree', function() {
       $('#add-category').prop('disabled', !$('#id_name').val().trim());
-    });
+    }).on('redraw.jstree', function(e, data) {
+      // 노드가 화면에 그려질 때마다 호출됩니다.
+      $('.jstree-node').each(function() {
+          var nodeId = this.id;
+          var deleteButton = $('<button/>', {
+              text: 'Delete',
+              class: 'delete-node-btn z-10 relative top-0 -right-4 p-1 bg-red-500 text-white rounded-full text-xs font-bold hover:bg-red-600 transition duration-300 ease-in-out',
+              click: function(e) {
+                  e.stopPropagation(); // 이벤트 버블링 방지
+                  $('#category-tree').jstree('delete_node', nodeId);
+              }
+          });
+          if ($(this).find('.delete-node-btn').length === 0) { // 중복 추가 방지
+              $(this).append(deleteButton);
+          }
+      });
+  });
   
     $('#category-tree').on("select_node.jstree", function(e, data) {
       selectedNode = data.node;
-      var depth = $('#category-tree').jstree(true).get_path(selectedNode, false, true).length;
-      var isRootOrDirectChild = depth <= 2;
-      $('#add-category').prop('disabled', !isRootOrDirectChild);
+      var hasChildren = data.node.children.length !== 0;
+      $('#add-category').prop('disabled', hasChildren);
     }).on('deselect_node.jstree', function(e, data) {
       selectedNode = null;
       $('#add-category').prop('disabled', !$('#id_name').val().trim());
     });
+    
     // 새로운 코드: 노드 선택 취소 버튼의 클릭 이벤트 핸들러
     $('#deselect-node').on('click', function() {
       $('#category-tree').jstree('deselect_all');

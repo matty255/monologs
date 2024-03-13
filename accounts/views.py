@@ -1,6 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from .models import CustomUser
-from django.views.generic import DetailView
+from django.views.generic import DetailView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from blog.models import Post, Like, Comment, Category
 from django.contrib.auth import logout
@@ -326,6 +326,15 @@ class CategoryCreateView(CreateView):
             for node in tree_data:
                 self.process_node(node, None, user, id_mapping)
 
+        # 새로운 트리에서 누락된 노드를 찾아 삭제합니다.
+        existing_node_ids = set(
+            Category.objects.filter(author=user).values_list("id", flat=True)
+        )
+        new_node_ids = set(id_mapping.values())
+        nodes_to_delete = existing_node_ids - new_node_ids
+
+        Category.objects.filter(id__in=nodes_to_delete).delete()
+
         created_nodes = [
             {"temp_id": temp_id, "new_id": real_id}
             for temp_id, real_id in id_mapping.items()
@@ -345,6 +354,7 @@ class CategoryCreateView(CreateView):
                 id=int(node_id),
                 defaults={"name": node["text"], "parent_id": parent_id, "author": user},
             )
+            id_mapping[cat.id] = cat.id  # 기존 노드의 ID도 저장합니다.
 
         # 자식 노드가 있을 경우, 각 자식에 대해 재귀적으로 이 함수를 호출합니다.
         for child in node.get("children", []):
@@ -398,24 +408,23 @@ class UserCategoriesView(View):
         return JsonResponse({"categories": categories})
 
 
-class PublicCategoryTreeView(View):
-    def get(self, request, username, category_id):
-        user = get_object_or_404(CustomUser, username=username)
-        # 특정 카테고리와 그 하위 카테고리만 필터링합니다.
-        category = get_object_or_404(Category, id=category_id, author=user)
-        categories = Category.objects.with_tree_fields().filter(
-            author=user, id=category_id
-        ) | Category.objects.with_tree_fields().filter(author=user, parent=category)
+class PublicCategoryTreeView(TemplateView):
+    template_name = "accounts/public-profile-category.html"
 
-        tree_data = json.dumps(
-            [
-                {
-                    "id": cat.id,
-                    "parent": "#" if cat.parent_id is None else cat.parent_id,
-                    "text": cat.name,
-                }
-                for cat in categories
-            ]
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        username = self.kwargs["username"]
+        category_id = self.kwargs["category_id"]
+        user = get_object_or_404(CustomUser, username=username)
+
+        # 특정 카테고리와 그 하위 카테고리만 필터링합니다.
+        main_category = get_object_or_404(Category, id=category_id, author=user)
+        categories = [main_category] + list(
+            Category.objects.filter(author=user, parent=main_category)
         )
 
-        return JsonResponse({"tree": tree_data})
+        # 카테고리 리스트를 컨텍스트에 추가
+        context["categories"] = categories
+        context["user"] = user  # 필요하다면 사용자 정보도 컨텍스트에 추가
+
+        return context

@@ -83,9 +83,9 @@
                   <ul>
                     {% for category in categories %}
                       <li class="{% if category.parent_id %}pl-3{% endif %}">
-                        <a href="{% url 'public-profile-category' slug=profile_user.username category_id=category.id %}">
+                        {% comment %} <a href="{% url 'public_profile' slug=profile_user.id category_id=category.id %}">
                           {{ category.name }}
-                        </a>
+                        </a> {% endcomment %}
                       </li>
                     {% endfor %}
                   </ul>

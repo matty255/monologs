@@ -7,7 +7,7 @@ from django.views.generic import (
     DeleteView,
 )
 from django.urls import reverse_lazy
-from .models import Post, Comment, Tag, Like, Bookmark
+from .models import Post, Comment, Tag, Like, Bookmark, Category
 from accounts.models import Follow
 from .forms import PostForm, CommentForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -257,11 +257,23 @@ class PostUpdateView(UserIsAuthorMixin, LoginRequiredMixin, UpdateView):
     template_name = "blog/post_update.html"
     success_url = reverse_lazy("blog_list")
 
+    def get_form_kwargs(self):
+        kwargs = super(PostUpdateView, self).get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["tags_list"] = list(Tag.objects.all().values_list("name", flat=True))
         if self.object:
             context["post_tags"] = list(self.object.tags.values_list("name", flat=True))
+            context["category"] = (
+                self.object.category
+                if self.object.category
+                else Category.objects.filter(
+                    name="all", author=self.request.user
+                ).first()
+            )
         return context
 
     def form_valid(self, form):
