@@ -1,7 +1,7 @@
 <!-- reply_update_form.html -->
 
 <!-- 대댓글 수정 모달 트리거 버튼 -->
-<button class="btn" onclick="document.getElementById('reply-edit-modal-{{ reply.id }}').showModal()">Edit</button>
+<button  class="flex justify-center items-center w-24 h-10 bg-black  rounded-lg" onclick="document.getElementById('reply-edit-modal-{{ reply.id }}').showModal()">Edit</button>
 
 <!-- 대댓글 수정 모달 -->
 <dialog id="reply-edit-modal-{{ reply.id }}" class="modal">

@@ -187,11 +187,23 @@ class PostDetailView(Custom404Mixin, LikeMixin, BookmarkMixin, DetailView):
 
         comments = post.comments.filter(parent__isnull=True).prefetch_related("replies")
         for comment in comments:
-
             comment.liked = self.get_like_status(user, comment)
             comment.bookmarked = self.get_bookmark_status(user, comment)
+            comment.author_profile_picture_url = (
+                comment.author.profile_picture.file.url
+                if comment.author.profile_picture
+                else None
+            )
+            comment.author_profile_status = comment.author.profile_status
 
             comment.replies_list = comment.replies.all()
+            for reply in comment.replies_list:
+                reply.author_profile_picture_url = (
+                    reply.author.profile_picture.file.url
+                    if reply.author.profile_picture
+                    else None
+                )
+                reply.author_profile_status = reply.author.profile_status
 
         context["tags"] = post.tags.all()
         context["comments"] = comments

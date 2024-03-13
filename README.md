@@ -30,7 +30,15 @@ http://43.200.237.70:8000/
 ```
 http://43.200.237.70:8000/
 
+
 docker-compose -f docker-compose.dev.yml up -d --build 
+
+docker build -t roki7/django-app:web-latest .
+docker-compose up -d
+
+docker push 유저이름/django-app:web-latest
+
+
 ```
 ## WBS
 

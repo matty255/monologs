@@ -1,34 +1,59 @@
-{% for comment in comments %}
-    <div>
-      <p>{{ comment.author }}: {{ comment.content }}</p>
-      {% if user.is_authenticated %}
-        <!-- 좋아요 버튼 -->
+{% load static %}
 
-        <form method="post" action="{% url 'toggle_like' pk=comment.pk %}">
-          {% csrf_token %}
-          <input type="hidden" name="content_type" value="comment">
-          <input type="hidden" name="object_id" value="{{ comment.id }}">
-          <button type="submit">
-            {% if comment.liked %}Liked{% else %}Like{% endif %}
-            <!-- 좋아요 수 추가 -->
-          </button>
-        </form>
+{% for comment in comments %}
+   
+<a href="{% url 'public_profile' slug=comment.author %}" class="group font-Happiness text-lg hover:underline underline-offset-2 text-white">
+  {{ comment.author }}
+  {% if comment.author_profile_picture_url %}
+      <img src="{{ comment.author_profile_picture_url }}" alt="{{ comment.author }}'s profile picture" class="rounded-full h-12 w-12 group-hover:ring-2 group-hover:ring-offset-2 group-hover:ring-white">
+  {% else %}
+      <img src="{% static 'images/logos/picture-default.webp' %}" class="rounded-full h-12 w-12 group-hover:ring-1 group-hover:ring-offset-2 group-hover:ring-white" alt="Default profile picture">
+  {% endif %}
+</a>
+
+
+      <p>
+         {{ comment.content }}</p>
+      {% if user.is_authenticated %}
+      <form method="post" action="{% url 'toggle_like' pk=comment.pk %}" class="flex items-center space-x-1">
+        {% csrf_token %}
+        <input type="hidden" name="content_type" value="comment">
+        <input type="hidden" name="object_id" value="{{ comment.id }}">
+        <button type="submit" class="flex items-center justify-center px-2 py-1 text-amber-500 hover:text-amber-600 focus:outline-none">
+          {% if comment.liked %}
+            <i class="fas fa-heart text-xs"></i>
+            <span class="ml-1 text-xs">Liked</span>
+          {% else %}
+            <i class="far fa-heart text-xs"></i>
+            <span class="ml-1 text-xs">Like</span>
+          {% endif %}
+        </button>
+      </form>
+    
         
         <!-- 북마크 버튼 -->
-        <form method="post" action="{% url 'toggle_bookmark' pk=comment.pk %}" class="bookmark-form">
+        <form method="post" action="{% url 'toggle_bookmark' pk=comment.pk %}" class="flex items-center space-x-1">
           {% csrf_token %}
           <input type="hidden" name="content_type" value="comment">
           <input type="hidden" name="object_id" value="{{ comment.id }}">
-          <button type="submit">
-            {% if comment.bookmarked %}Bookmarked{% else %}Bookmark{% endif %}
+          <button type="submit" class="flex items-center justify-center px-2 py-1 text-purple-500 hover:text-purple-600 focus:outline-none">
+            {% if comment.bookmarked %}
+              <i class="fas fa-bookmark text-xs"></i>
+              <span class="ml-1 text-xs">Bookmarked</span>
+            {% else %}
+              <i class="far fa-bookmark text-xs"></i>
+              <span class="ml-1 text-xs">Bookmark</span>
+            {% endif %}
           </button>
         </form>
+
+      
   
       {% endif %}
 
 
       {% if user.is_authenticated %}
-      <button onclick="toggleReplyForm('reply-form-{{ comment.id }}');">Reply</button>
+      <button onclick="toggleReplyForm('reply-form-{{ comment.id }}');"  class="flex justify-center items-center w-24 h-10 bg-black  rounded-lg">Reply</button>
       <div id="reply-form-{{ comment.id }}" style="display:none;">
         {% include 'blog/include/reply_form.html' with parent_id=comment.id form=comment_form %}
       </div>
@@ -40,32 +65,54 @@
 
       {% for reply in comment.replies_list %}
         <div class="reply pl-4 border-l-2 border-gray-200">
-          <p>{{ reply.author }}: {{ reply.content }}</p>
+          <a href="{% url 'public_profile' slug=reply.author %}" class="group font-Happiness text-lg hover:underline underline-offset-2 text-white">
+            {{ reply.author }}
+            {% if reply.author_profile_picture_url %}
+                <img src="{{ reply.author_profile_picture_url }}" alt="{{ reply.author }}'s profile picture" class="rounded-full h-12 w-12 group-hover:ring-2 group-hover:ring-offset-2 group-hover:ring-white">
+            {% else %}
+                <img src="{% static 'images/logos/picture-default.webp' %}" class="rounded-full h-12 w-12 group-hover:ring-2 group-hover:ring-offset-2 group-hover:ring-white" alt="Default profile picture">
+            {% endif %}
+        </a>
+        
+          <p>{{ reply.content }}</p>
           {% if user.is_authenticated %}
             <!-- 대댓글에 대한 좋아요 버튼 -->
-            <form method="post" action="{% url 'toggle_like' pk=reply.pk %}">
+            <form method="post" action="{% url 'toggle_like' pk=reply.pk %}" class="flex items-center space-x-1">
               {% csrf_token %}
               <input type="hidden" name="content_type" value="comment">
               <input type="hidden" name="object_id" value="{{ reply.id }}">
-              <button type="submit">
-                {% if reply.liked %}Liked{% else %}Like{% endif %}
-                <!-- 좋아요 수 추가 -->
+              <button type="submit" class="flex items-center justify-center px-2 py-1 text-amber-500 hover:text-amber-600 focus:outline-none">
+                {% if reply.liked %}
+                  <i class="fas fa-heart text-xs"></i>
+                  <span class="ml-1 text-xs">Liked</span>
+                {% else %}
+                  <i class="far fa-heart text-xs"></i>
+                  <span class="ml-1 text-xs">Like</span>
+                {% endif %}
               </button>
             </form>
 
 
-            <form method="post" action="{% url 'toggle_bookmark' pk=reply.pk %}" class="bookmark-form">
+            <form method="post" action="{% url 'toggle_bookmark' pk=reply.pk %}" class="flex items-center space-x-1">
               {% csrf_token %}
               <input type="hidden" name="content_type" value="comment">
               <input type="hidden" name="object_id" value="{{ reply.id }}">
-              <button type="submit">
-                {% if reply.bookmarked %}Bookmarked{% else %}Bookmark{% endif %}
+              <button type="submit" class="flex items-center justify-center px-2 py-1 text-purple-500 hover:text-purple-600 focus:outline-none">
+                {% if reply.bookmarked %}
+                  <i class="fas fa-bookmark text-xs"></i>
+                  <span class="ml-1 text-xs">Bookmarked</span>
+                {% else %}
+                  <i class="far fa-bookmark text-xs"></i>
+                  <span class="ml-1 text-xs">Bookmark</span>
+                {% endif %}
               </button>
             </form>
 
             {% if request.user == reply.author %}
+            <div class="flex gap-x-2">
             {% include 'blog/include/reply_update_form.html' with comment=reply form=comment_form %}
             {% include 'blog/include/comment_confirm_delete.html' with comment=reply %}
+            </div>
           {% endif %}
           {% endif %}
         </div>
@@ -75,8 +122,10 @@
     <div class="flex">
 
     {% if request.user == comment.author %}
+    <div class="flex gap-x-2">
     {% include 'blog/include/comment_update_form.html' with comment=comment form=comment_form %}
     {% include 'blog/include/comment_confirm_delete.html' with comment=comment %}
+    </div>
   {% endif %}
   </div>
 {% endfor %}
