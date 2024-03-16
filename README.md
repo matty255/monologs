@@ -7,7 +7,7 @@
 ![image](./static/images/banners/darkmode-background.webp)
 
 - Django Monolithic Blog Project
-  `monologs`는 사용자가 블로그 포스트를 작성하고, 로그인 및 회원가입 기능을 통해 사용자 인증을 관리하는 동시에, 게시글을 올릴 수 있는 게시판을 제공하는 웹 애플리케이션입니다. AI가 초안 작성을 도와주니다.
+  `monologs`는 사용자가 블로그 포스트를 작성하고, 로그인 및 회원가입 기능을 통해 사용자 인증을 관리하는 동시에, 게시글을 올릴 수 있는 게시판을 제공하는 웹 애플리케이션입니다. AI가 초안 작성을 도와줍니다.
 
 # 목차
 

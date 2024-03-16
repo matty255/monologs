@@ -6,16 +6,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.apps import apps
 from django.forms import ModelChoiceField
 from django.utils.html import format_html
-from django.shortcuts import get_object_or_404
-
-
-class UploadToPathMixin:
-    staticmethod
-
-    def upload_to(self, instance, filename):
-        ext = filename.split(".")[-1]
-        filename = f"{uuid.uuid4()}.{ext}"
-        return f"thumbnails/{datetime.now().strftime('%Y/%m/%d')}/{filename}"
 
 
 class LikeMixin:

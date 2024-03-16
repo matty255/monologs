@@ -5,25 +5,22 @@ from django.apps import apps
 
 
 class UploadToPathMixin:
-    @staticmethod
-    def upload_to_original(instance, filename):
-        ext = filename.split(".")[-1]
-        filename = f"{uuid.uuid4()}.{ext}"  # 고유한 파일 이름 생성
-        return f"original_images/{datetime.now().strftime('%Y/%m/%d')}/{filename}"
+
+    base_folder = "uploads"
 
     @staticmethod
-    def upload_to_cropped(instance, filename):
-        ext = filename.split(".")[-1]
-        filename = f"{uuid.uuid4()}.{ext}"  # 고유한 파일 이름 생성
-        return f"cropped_images/{datetime.now().strftime('%Y/%m/%d')}/{filename}"
+    def upload_to(instance, filename):
+
+        folder_name = str(uuid.uuid4())
+        return f"{UploadToPathMixin.base_folder}/{folder_name}/{datetime.now().strftime('%Y/%m/%d')}/{filename}"
 
     @staticmethod
-    def upload_to_user_path(instance, filename, folder_name):
-        username = instance.user.username  # Assuming the user is linked to the instance
-        ext = filename.split(".")[-1]
-        filename = f"{uuid.uuid4()}.{ext}"  # 고유한 파일 이름 생성
-        date_path = datetime.now().strftime("%Y/%m/%d")
-        return f"{folder_name}/{username}/{date_path}/{filename}"
+    def upload_to_user_path(instance, filename, user_folder):
+
+        folder_name = str(uuid.uuid4())
+
+        user_path = f"{user_folder}/{instance.user.username}"
+        return f"{UploadToPathMixin.base_folder}/{user_path}/{folder_name}/{datetime.now().strftime('%Y/%m/%d')}/{filename}"
 
 
 class LikedAndBookmarkedMixin:

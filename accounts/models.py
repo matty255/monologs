@@ -29,8 +29,8 @@ class Follow(models.Model):
 
 
 class CroppedImage(UploadToPathMixin, models.Model):
-    original_file = models.ImageField(upload_to=UploadToPathMixin.upload_to_original)
-    file = models.ImageField(upload_to=UploadToPathMixin.upload_to_cropped)
+
+    file = models.ImageField(upload_to=UploadToPathMixin.upload_to, max_length=500)
     uploaded = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

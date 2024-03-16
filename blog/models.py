@@ -3,7 +3,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django_quill.fields import QuillField
 from accounts.models import CustomUser
-from .mixins import UploadToPathMixin
+from accounts.mixins import UploadToPathMixin
 from tree_queries.models import TreeNode
 
 
@@ -39,7 +39,9 @@ class Post(UploadToPathMixin, models.Model):
     def get_upload_path(self, filename):
         return UploadToPathMixin.upload_to(self, instance=self, filename=filename)
 
-    thumbnail = models.ImageField(upload_to=get_upload_path, null=True, blank=True)
+    thumbnail = models.ImageField(
+        upload_to=get_upload_path, null=True, blank=True, max_length=500
+    )
     tags = models.ManyToManyField(Tag, related_name="posts", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

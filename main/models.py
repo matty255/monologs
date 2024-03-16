@@ -5,9 +5,9 @@ from PIL import Image
 
 
 class ImageModel(models.Model):
-    image = models.ImageField(upload_to="images/")
+    image = models.ImageField(upload_to="images/", max_length=500)
     converted_image = models.FileField(
-        upload_to="converted_images/", blank=True, null=True
+        upload_to="converted_images/", blank=True, null=True, max_length=500
     )
 
     def save(self, *args, **kwargs):
