@@ -1,6 +1,11 @@
 # urls.py
 from django.urls import path
-from .views import IndexView, AboutView, ConvertAndDownloadView
+from .views import (
+    IndexView,
+    AboutView,
+    ConvertAndDownloadView,
+    ConvertAndDownloadPNGView,
+)
 from accounts.views import PublicProfileView, UserCategoriesView, PublicCategoryTreeView
 
 urlpatterns = [
@@ -10,6 +15,11 @@ urlpatterns = [
         "download_image/<int:pk>/",
         ConvertAndDownloadView.as_view(),
         name="convert_and_download",
+    ),
+    path(
+        "download_image_png/<int:pk>/",
+        ConvertAndDownloadPNGView.as_view(),
+        name="convert_and_download_png",
     ),
     path("@<str:slug>/", PublicProfileView.as_view(), name="public_profile"),
     # path(

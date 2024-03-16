@@ -5,6 +5,8 @@ from .utils import ImageConverter
 from django.shortcuts import get_object_or_404
 from pathlib import Path
 from django.conf import settings
+from PIL import Image
+import io
 
 
 class ConvertAndDownloadView(View):
@@ -12,23 +14,38 @@ class ConvertAndDownloadView(View):
         image_id = kwargs.get("pk")
         image_instance = get_object_or_404(ImageModel, pk=image_id)
 
-        if not image_instance.converted_image:
-            # 이미지 변환 처리
-            source_path = image_instance.image.path
-            converted_path = ImageConverter.convert_to_webp(source_path)
-            image_instance.converted_image.name = str(
-                Path(converted_path).relative_to(settings.MEDIA_ROOT)
-            )
-            image_instance.save()
+        if image_instance.converted_image:
+            file_path = settings.MEDIA_ROOT / image_instance.converted_image.name
+            if file_path.exists():
 
-        # 변환된 이미지 다운로드
-        file_path = settings.MEDIA_ROOT / image_instance.converted_image.name
-        if file_path.exists():
-            return FileResponse(
-                open(file_path, "rb"), as_attachment=True, filename=file_path.name
-            )
-        else:
-            return HttpResponseNotFound("The requested webp file does not exist.")
+                image = Image.open(file_path).convert("RGB")
+                buffer = io.BytesIO()
+                image.save(buffer, format="PNG")
+                buffer.seek(0)
+
+                return FileResponse(
+                    buffer, as_attachment=True, filename=f"{file_path.stem}.png"
+                )
+        return HttpResponseNotFound("The requested file does not exist.")
+
+
+class ConvertAndDownloadPNGView(View):
+    def get(self, request, *args, **kwargs):
+        image_id = kwargs.get("pk")
+        image_instance = get_object_or_404(ImageModel, pk=image_id)
+
+        if image_instance.converted_image:
+            file_path = settings.MEDIA_ROOT / image_instance.converted_image.name
+            if file_path.exists():
+                image = Image.open(file_path).convert("RGB")
+                buffer = io.BytesIO()
+                image.save(buffer, format="PNG")
+                buffer.seek(0)
+
+                return FileResponse(
+                    buffer, as_attachment=True, filename=f"{file_path.stem}.png"
+                )
+        return HttpResponseNotFound("The requested file does not exist.")
 
 
 class IndexView(TemplateView):

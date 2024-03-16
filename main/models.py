@@ -2,6 +2,8 @@ from django.db import models
 from django.conf import settings
 from pathlib import Path
 from PIL import Image
+from django.core.files.base import ContentFile
+import io
 
 
 class ImageModel(models.Model):
@@ -11,19 +13,28 @@ class ImageModel(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)  # 원본 이미지 저장
+        # 임시 메모리에 이미지를 WebP로 변환
         if self.image:  # 이미지 필드가 채워져 있으면
-            # 이미지를 WebP로 변환
-            source_path = self.image.path
-            destination_path = Path(source_path).with_suffix(".webp")
-            with Image.open(source_path) as img:
-                img.convert("RGB").save(destination_path, "webp")
+            pil_image = Image.open(self.image)
+            pil_image = pil_image.convert("RGB")  # PNG 등의 투명 이미지 처리를 위해
+            buffer = io.BytesIO()
+            pil_image.save(buffer, format="WEBP")
+            buffer.seek(0)
 
-            # 변환된 이미지 경로 저장
-            self.converted_image.name = str(
-                destination_path.relative_to(settings.MEDIA_ROOT)
+            # 변환된 이미지 파일명 설정
+            original_name = Path(self.image.name).stem  # 확장자 없는 파일 이름
+            webp_filename = f"{original_name}.webp"
+
+            # 변환된 이미지를 converted_image 필드에 저장
+            self.converted_image.save(
+                webp_filename, ContentFile(buffer.read()), save=False
             )
-            super().save(*args, **kwargs)  # 변환된 이미지 정보 저장
+            buffer.close()
+
+            # 원본 이미지 필드를 None으로 설정하여 저장하지 않음
+            self.image = None
+
+        super().save(*args, **kwargs)  # 변환된 이미지 정보 저장
 
     def __str__(self):
-        return self.image.name
+        return self.converted_image.name if self.converted_image else "No image"
