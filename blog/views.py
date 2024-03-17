@@ -83,6 +83,7 @@ class SearchView(Custom404Mixin, ListView):
     def get_queryset(self):
         query = self.request.GET.get("q", "")
         tag = self.request.GET.get("tag", "")
+        category_id = self.request.GET.get("category_id", "")
         post_content_type = ContentType.objects.get_for_model(Post)
 
         queries = []
@@ -95,6 +96,9 @@ class SearchView(Custom404Mixin, ListView):
 
         if tag:
             queries.append(Q(tags__name__icontains=tag))
+
+        if category_id:
+            queries.append(Q(category_id=category_id))
 
         if queries:
             combined_query = queries.pop()

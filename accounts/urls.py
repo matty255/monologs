@@ -12,7 +12,6 @@ from .views import (
     ProfileImageDeleteView,
     UserDeleteView,
     UserFollowingListView,
-    UserCategoriesView,
 )
 
 

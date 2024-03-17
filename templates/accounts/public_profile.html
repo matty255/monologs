@@ -14,7 +14,11 @@
     {{ profile_user.username }}'s blog
   </h1>
 </div>
-
+<ul> test test
+    {% for category in categories %}
+        <li>{{ category.name }}</li>
+    {% endfor %}
+    </ul>
 
 <div class="container mx-auto my-5 p-5">
     <div class="md:flex no-wrap md:-mx-2 ">
@@ -79,17 +83,16 @@
                     <span class="tracking-wide">About</span>
                 </div>
                 <div class="text-gray-700">
-                  <h2>Categories</h2>
-                  <ul>
-                    {% for category in categories %}
-                      <li class="{% if category.parent_id %}pl-3{% endif %}">
-                        {% comment %} <a href="{% url 'public_profile' slug=profile_user.id category_id=category.id %}">
-                          {{ category.name }}
-                        </a> {% endcomment %}
-                      </li>
-                    {% endfor %}
-                  </ul>
-                
+                <h2>Categories</h2>
+                <ul>
+                {% for category in categories %}
+                    <li class="{% if category.id == selected_category_id %}selected{% endif %}">
+                        <a href="?category_id={{ category.id }}">{{ category.name }}</a>
+                    </li>
+                {% endfor %}
+                </ul>
+
+              
                   <h2>Posts</h2>
                   {% if posts %}
                     {% for post in posts %}

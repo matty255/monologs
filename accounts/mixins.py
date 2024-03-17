@@ -5,21 +5,18 @@ from django.apps import apps
 
 
 class UploadToPathMixin:
-
     base_folder = "uploads"
+    user_folder = "user_folder"  # 클래스 변수로 설정
 
     @staticmethod
     def upload_to(instance, filename):
-
         folder_name = str(uuid.uuid4())
         return f"{UploadToPathMixin.base_folder}/{folder_name}/{datetime.now().strftime('%Y/%m/%d')}/{filename}"
 
     @staticmethod
-    def upload_to_user_path(instance, filename, user_folder):
-
+    def upload_to_user_path(instance, filename):
         folder_name = str(uuid.uuid4())
-
-        user_path = f"{user_folder}/{instance.user.username}"
+        user_path = f"{UploadToPathMixin.user_folder}/{instance.user.username}"  # 클래스 변수 사용
         return f"{UploadToPathMixin.base_folder}/{user_path}/{folder_name}/{datetime.now().strftime('%Y/%m/%d')}/{filename}"
 
 
